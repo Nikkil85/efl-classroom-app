@@ -3,98 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ms. Nikki's EFL Portal</title>
-    
+    <title>Ms. Nikki's EFL All-In-One</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
     
     <style>
-        :root { --pink: #E8829A; --bg: #FFF5F8; }
-        body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; transition: opacity 0.2s; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-main { background: var(--pink); color: white; }
-        .btn-sub { background: #f0f0f0; color: #666; border: 1px solid #ddd; }
-        #status-msg { font-size: 12px; margin-top: 10px; color: #666; }
+        /* YOUR STYLING */
+        :root {
+            --pink:#FFB6C8;--pink-light:#FFE4ED;--pink-pale:#FFF0F5;--pink-deep:#E8829A;--pink-text:#C45A72;
+            --white:#FFFFFF;--bg:#FFF5F8;--text:#1A1A2E;--text-muted:#7A7A9A;--border-light:#FAE8EF;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Nunito Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+        /* LOGIN SCREEN STYLES */
+        #login-zone { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,#FFF0F5 0%,#FFE4ED 100%); }
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1.5px solid #eee; border-radius: 10px; }
+        .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; margin-top: 10px; }
+        .btn-main { background: var(--pink-deep); color: white; }
+        .btn-sub { background: #f9f9f9; color: #666; border: 1px solid #ddd; }
+
+        /* APP LAYOUT - HIDDEN UNTIL LOGIN */
+        #app-content { display: none; }
+        .app { display: flex; min-height: 100vh; }
+        .sidebar { width: 240px; background: var(--white); border-right: 1px solid var(--border-light); position: fixed; height: 100vh; padding: 20px; display: flex; flex-direction: column; }
+        .main { margin-left: 240px; flex: 1; padding: 30px; }
+        
+        .nav-item { padding: 12px; cursor: pointer; border-radius: 10px; margin-bottom: 5px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .nav-item:hover, .nav-item.active { background: var(--pink-pale); color: var(--pink-text); }
+        .sidebar-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-light); }
+        
+        .stat-card { background: white; padding: 20px; border-radius: 14px; border: 1px solid var(--border-light); box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div id="login-zone">
-    <div class="card">
-        <h2 style="color: #E8829A;">🍎 Teacher Login</h2>
-        <p id="status-msg">Initializing system...</p>
-        <input type="email" id="email" placeholder="Email">
+    <div class="card login-card">
+        <h1 style="color: var(--pink-deep); margin-bottom: 10px;">🍎 Ms. Nikki</h1>
+        <p style="font-size: 14px; color: #999; margin-bottom: 20px;">Teacher Portal Login</p>
+        <input type="email" id="email" placeholder="Email Address">
         <input type="password" id="password" placeholder="Password">
-        <button id="login-btn" class="btn btn-main" onclick="signIn()">Login →</button>
-        <button id="signup-btn" class="btn btn-sub" onclick="signUp()">Register New Teacher</button>
+        <button class="btn btn-main" onclick="signIn()">Login →</button>
+        <button class="btn btn-sub" onclick="signUp()">Register New Teacher</button>
     </div>
 </div>
 
-<div id="app-content" style="display:none;">
-    <div class="card">
-        <h2>Logged In!</h2>
-        <p>Ms. Nikki's Dashboard is Active.</p>
-        <button class="btn btn-sub" onclick="logout()">Sign Out</button>
+<div id="app-content">
+    <div class="app">
+        <aside class="sidebar">
+            <div style="margin-bottom: 30px;">
+                <h1 style="font-size: 18px; color: var(--pink-text);">Ms. Nikki's EFL</h1>
+                <p style="font-size: 11px; color: var(--text-muted);">All-In-One Classroom</p>
+            </div>
+            <nav>
+                <div class="nav-item active">🏠 Dashboard</div>
+                <div class="nav-item">👩‍🎓 Students</div>
+                <div class="nav-item">✅ Attendance</div>
+                <div class="nav-item">📊 Grades</div>
+                <div class="nav-item">📖 Lessons</div>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn btn-sub" onclick="logout()" style="font-size: 12px;">🚪 Sign Out</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header>
+                <h2 id="greeting">Good morning, Ms. Nikki! 👋</h2>
+                <p style="color: var(--text-muted);">Here is what's happening today.</p>
+            </header>
+
+            <div class="grid-4">
+                <div class="stat-card"><h3>Total Students</h3><p style="font-size: 24px; font-weight: 800;">--</p></div>
+                <div class="stat-card"><h3>Attendance</h3><p style="font-size: 24px; font-weight: 800; color: #2E7D32;">--</p></div>
+                <div class="stat-card"><h3>Classes</h3><p style="font-size: 24px; font-weight: 800;">4</p></div>
+                <div class="stat-card"><h3>Alerts</h3><p style="font-size: 24px; font-weight: 800; color: #C0392B;">0</p></div>
+            </div>
+
+            <div style="margin-top: 30px; background: white; padding: 30px; border-radius: 20px; text-align: center; border: 2px dashed var(--pink);">
+                <p style="color: var(--pink-text);">Welcome to your secure classroom space. Your data is now private!</p>
+            </div>
+        </main>
     </div>
 </div>
 
 <script>
     const _URL = "https://xajfmpgrtdlfdhubqzba.supabase.co";
     const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhamZtcGdydGRsZmRodWJxemJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NTgwNTUsImV4cCI6MjA5MjEzNDA1NX0.QuI6GVNvu4Zy5jAn2veHYuyV0q07qKBdYenswnTp-PU";
-    
-    let supabaseClient;
+    const supabaseClient = supabase.createClient(_URL, _KEY);
 
-    // Check if the library loaded
-    try {
-        supabaseClient = supabase.createClient(_URL, _KEY);
-        document.getElementById('status-msg').innerText = "System Ready ✅";
-        console.log("Supabase initialized successfully");
-    } catch (e) {
-        document.getElementById('status-msg').innerText = "System Error: Library failed to load.";
-        console.error("Supabase Init Error:", e);
+    async function signIn() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) alert(error.message);
+        else enterApp();
     }
 
     async function signUp() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        const btn = document.getElementById('signup-btn');
-        
-        if (!email || !password) return alert("Please fill in both fields.");
-        
-        btn.disabled = true;
-        btn.innerText = "Registering...";
-        
         const { data, error } = await supabaseClient.auth.signUp({ email, password });
-
-        if (error) {
-            alert("Error: " + error.message);
-            btn.disabled = false;
-            btn.innerText = "Register New Teacher";
-        } else {
-            alert("Success! Check your email for the confirmation link.");
-            btn.innerText = "Check Email";
-        }
-    }
-
-    async function signIn() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const btn = document.getElementById('login-btn');
-
-        btn.disabled = true;
-        btn.innerText = "Signing in...";
-
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-        if (error) {
-            alert("Login Failed: " + error.message);
-            btn.disabled = false;
-            btn.innerText = "Login →";
-        } else {
-            enterApp();
-        }
+        if (error) alert(error.message);
+        else alert("Check your email for the link!");
     }
 
     function enterApp() {
@@ -106,6 +120,11 @@
         supabaseClient.auth.signOut();
         location.reload();
     }
+
+    window.onload = async () => {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) enterApp();
+    };
 </script>
 
 </body>
