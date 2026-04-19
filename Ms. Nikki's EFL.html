@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ms. Nikki's EFL All-In-One</title>
+<meta name="theme-color" content="#E8829A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ms. Nikki EFL">
+<link rel="manifest" id="pwa-manifest">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+// Inject manifest inline (no separate file needed)
+const manifest = {name:"Ms. Nikki's EFL All-In-One",short_name:"EFL App",start_url:".",display:"standalone",background_color:"#FFF5F8",theme_color:"#E8829A",icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%23E8829A'/><text y='130' font-size='110' text-anchor='middle' x='96'>🍎</text></svg>",sizes:"192x192",type:"image/svg+xml"}]};
+const blob = new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+
+// Register Service Worker for offline support
+if('serviceWorker' in navigator){
+  const swCode = `
+const CACHE = 'efl-v2';
+const ASSETS = [location.href];
+self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.add(new Request(self.location.href, {cache:'reload'}))).catch(()=>{})));
+self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
+self.addEventListener('fetch', e => {
+  if(e.request.mode==='navigate'){
+    e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open(CACHE).then(cache=>cache.put(e.request,c));return r;}).catch(()=>caches.match(e.request)));
+  }
+});`;
+  const swBlob = new Blob([swCode],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+}
+</script>
+<style>
+  :root {
+    --pink:#FFB6C8;--pink-light:#FFE4ED;--pink-pale:#FFF0F5;--pink-deep:#E8829A;--pink-text:#C45A72;
+    --white:#FFFFFF;--bg:#FFF5F8;--surface:#FFFFFF;
+    --text:#1A1A2E;--text-muted:#7A7A9A;--text-light:#B0B0C8;
+    --border:#F0D0DC;--border-light:#FAE8EF;
+    --shadow:0 2px 12px rgba(220,80,120,0.08);--shadow-md:0 4px 24px rgba(220,80,120,0.14);
+    --radius:14px;--radius-sm:8px;--radius-lg:20px;
+    --c1:#D4B8F0;--c1-bg:#F5EEFF;--c1-text:#6B3FA0;--c1-border:#C9ADEE;
+    --c2:#FFB6C8;--c2-bg:#FFF0F5;--c2-text:#B83A5C;--c2-border:#F9A0B8;
+    --c3:#B8D8F0;--c3-bg:#EFF7FF;--c3-text:#2A6EA8;--c3-border:#9FCBE8;
+    --c4:#FFE8A0;--c4-bg:#FFFAE8;--c4-text:#8A6A00;--c4-border:#F5D870;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  h1,h2,h3,h4{font-family:'Nunito',sans-serif;}
+
+  .app{display:flex;min-height:100vh;}
+  .sidebar{width:240px;background:var(--white);border-right:1px solid var(--border-light);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;overflow-y:auto;}
+  .main{margin-left:240px;flex:1;min-height:100vh;}
+  .content{padding:24px;max-width:1200px;}
+
+  .sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border-light);}
+  .sidebar-logo h1{font-size:15px;font-weight:800;color:var(--pink-text);line-height:1.3;}
+  .sidebar-logo p{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .logo-icon{width:36px;height:36px;background:var(--pink-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px;}
+  .nav-section{padding:8px 0;}
+  .nav-section-title{font-size:10px;font-weight:700;color:var(--text-light);letter-spacing:.08em;text-transform:uppercase;padding:6px 16px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-muted);transition:all .15s;border-left:3px solid transparent;}
+  .nav-item:hover{background:var(--pink-pale);color:var(--pink-text);}
+  .nav-item.active{background:var(--pink-pale);color:var(--pink-text);border-left-color:var(--pink-deep);font-weight:600;}
+  .nav-icon{font-size:16px;width:20px;text-align:center;}
+  .sidebar-footer{margin-top:auto;padding:16px;border-top:1px solid var(--border-light);}
+  .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--pink-deep));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0;}
+
+  .page-header{margin-bottom:24px;}
+  .page-header h2{font-size:24px;font-weight:800;}
+  .page-header p{font-size:14px;color:var(--text-muted);margin-top:4px;}
+  .header-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+
+  /* BREADCRUMB */
+  .breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:13px;}
+  .breadcrumb-item{color:var(--pink-text);cursor:pointer;font-weight:600;}
+  .breadcrumb-item:hover{text-decoration:underline;}
+  .breadcrumb-sep{color:var(--text-light);}
+  .breadcrumb-current{color:var(--text-muted);}
+
+  /* CLASS SELECTOR GRID */
+  .class-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:8px;}
+  .class-card{border-radius:var(--radius-lg);padding:24px 20px;cursor:pointer;transition:all .2s;border:2px solid transparent;position:relative;overflow:hidden;}
+  .class-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+  .class-card.c1{background:var(--c1-bg);border-color:var(--c1-border);}
+  .class-card.c2{background:var(--c2-bg);border-color:var(--c2-border);}
+  .class-card.c3{background:var(--c3-bg);border-color:var(--c3-border);}
+  .class-card.c4{background:var(--c4-bg);border-color:var(--c4-border);}
+  .class-card .cc-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .class-card .cc-name{font-size:18px;font-weight:800;margin-bottom:8px;}
+  .class-card .cc-count{font-size:13px;font-weight:600;}
+  .class-card .cc-icon{position:absolute;right:14px;top:14px;font-size:28px;opacity:.25;}
+  .class-card .cc-stats{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;}
+  .class-card .cc-stat{font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;}
+  .c1 .cc-label,.c1 .cc-name,.c1 .cc-count{color:var(--c1-text);}
+  .c2 .cc-label,.c2 .cc-name,.c2 .cc-count{color:var(--c2-text);}
+  .c3 .cc-label,.c3 .cc-name,.c3 .cc-count{color:var(--c3-text);}
+  .c4 .cc-label,.c4 .cc-name,.c4 .cc-count{color:var(--c4-text);}
+  .c1 .cc-stat{background:var(--c1);color:var(--c1-text);}
+  .c2 .cc-stat{background:var(--c2);color:var(--c2-text);}
+  .c3 .cc-stat{background:var(--c3);color:var(--c3-text);}
+  .c4 .cc-stat{background:var(--c4);color:var(--c4-text);}
+
+  /* SELECTED CLASS HEADER STRIP */
+  .class-header-strip{border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  .class-header-strip.c1{background:var(--c1-bg);border:1.5px solid var(--c1-border);}
+  .class-header-strip.c2{background:var(--c2-bg);border:1.5px solid var(--c2-border);}
+  .class-header-strip.c3{background:var(--c3-bg);border:1.5px solid var(--c3-border);}
+  .class-header-strip.c4{background:var(--c4-bg);border:1.5px solid var(--c4-border);}
+  .chs-title{font-size:16px;font-weight:800;}
+  .c1 .chs-title{color:var(--c1-text);}
+  .c2 .chs-title{color:var(--c2-text);}
+  .c3 .chs-title{color:var(--c3-text);}
+  .c4 .chs-title{color:var(--c4-text);}
+
+  .card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border-light);padding:20px;box-shadow:var(--shadow);}
+  .stat-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border-light);padding:16px 20px;}
+  .stat-card .stat-label{font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+  .stat-card .stat-value{font-size:28px;font-weight:800;color:var(--text);margin-top:4px;font-family:'Nunito',sans-serif;}
+  .stat-card .stat-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  @media(max-width:900px){.class-grid,.grid-4{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:600px){.class-grid,.grid-4,.grid-3,.grid-2{grid-template-columns:1fr;}}
+
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:'Nunito',sans-serif;}
+  .btn-primary{background:var(--pink-deep);color:white;}
+  .btn-primary:hover{background:var(--pink-text);}
+  .btn-outline{background:white;color:var(--pink-text);border:1.5px solid var(--pink);}
+  .btn-outline:hover{background:var(--pink-pale);}
+  .btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border);}
+  .btn-ghost:hover{background:var(--pink-pale);color:var(--pink-text);}
+  .btn-sm{padding:6px 12px;font-size:12px;}
+  .btn-danger{background:#FFE5E5;color:#C0392B;border:none;}
+  .btn-danger:hover{background:#FFCDD2;}
+
+  .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge-c1{background:var(--c1-bg);color:var(--c1-text);}
+  .badge-c2{background:var(--c2-bg);color:var(--c2-text);}
+  .badge-c3{background:var(--c3-bg);color:var(--c3-text);}
+  .badge-c4{background:var(--c4-bg);color:var(--c4-text);}
+  .badge-present{background:#E8F5E9;color:#2E7D32;}
+  .badge-absent{background:#FFEBE8;color:#C0392B;}
+  .badge-late{background:#FFF8E1;color:#E65100;}
+  .badge-excused{background:#E3F2FD;color:#1565C0;}
+  .badge-missing{background:#FFF3E0;color:#BF360C;}
+  .badge-submitted{background:#E8F5E9;color:#2E7D32;}
+
+  input[type="text"],input[type="email"],input[type="password"],input[type="number"],input[type="date"],select,textarea{
+    width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+    font-size:13px;font-family:'Nunito Sans',sans-serif;background:white;color:var(--text);outline:none;transition:border-color .15s;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--pink);}
+  label{font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:5px;display:block;}
+  .form-group{margin-bottom:14px;}
+
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;background:var(--pink-pale);border-bottom:1px solid var(--border-light);}
+  tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s;}
+  tbody tr:hover{background:var(--pink-pale);}
+  tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
+  tbody tr:last-child{border-bottom:none;}
+
+  .progress-bar{height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:3px;transition:width .4s;}
+  .progress-pink{background:var(--pink-deep);}
+  .progress-green{background:#66BB6A;}
+  .progress-amber{background:#FFA726;}
+  .progress-red{background:#EF5350;}
+
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border-light);margin-bottom:20px;}
+  .tab{padding:10px 18px;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+  .tab.active{color:var(--pink-text);border-bottom-color:var(--pink-deep);}
+  .tab:hover{color:var(--pink-text);}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .modal{background:white;border-radius:var(--radius-lg);padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md);}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .modal-header h3{font-size:18px;font-weight:800;}
+  .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);}
+
+  .att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+  .att-card{border:1.5px solid var(--border-light);border-radius:var(--radius-sm);padding:12px;display:flex;flex-direction:column;gap:8px;transition:all .15s;}
+  .att-card:hover{border-color:var(--pink);box-shadow:var(--shadow);}
+  .att-buttons{display:flex;gap:4px;flex-wrap:wrap;}
+  .att-btn{flex:1;min-width:36px;padding:5px;border-radius:6px;border:1.5px solid var(--border);background:white;font-size:10px;font-weight:700;cursor:pointer;text-align:center;transition:all .1s;}
+  .att-btn.sel-P{background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;}
+  .att-btn.sel-L{background:#FFF8E1;border-color:#FFA726;color:#E65100;}
+  .att-btn.sel-A{background:#FFEBE8;border-color:#EF5350;color:#C0392B;}
+  .att-btn.sel-E{background:#E3F2FD;border-color:#42A5F5;color:#1565C0;}
+
+  .behavior-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;border:1.5px solid transparent;}
+  .behavior-chip.negative{background:#FFEBE8;color:#C0392B;border-color:#FFCDD2;}
+  .behavior-chip.positive{background:#E8F5E9;color:#2E7D32;border-color:#C8E6C9;}
+  .behavior-chip:hover{transform:scale(1.05);}
+
+  .lesson-card{border-left:4px solid var(--pink-deep);padding:16px;background:white;border-radius:0 var(--radius) var(--radius) 0;box-shadow:var(--shadow);margin-bottom:12px;}
+
+  .section{display:none;}
+  .section.active{display:block;}
+
+  /* Sub-views within a section */
+  .subview{display:none;}
+  .subview.active{display:block;}
+
+  .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFF0F5 0%,#FFE4ED 50%,#F8E4FF 100%);}
+  .login-card{background:white;border-radius:var(--radius-lg);padding:40px;width:380px;box-shadow:0 8px 48px rgba(220,80,120,0.15);}
+  .login-logo{text-align:center;margin-bottom:28px;}
+  .login-logo .logo-big{font-size:48px;margin-bottom:8px;}
+  .login-logo h1{font-size:20px;font-weight:800;color:var(--pink-text);}
+
+  .grade-cell{text-align:center;}
+  .grade-input{width:52px;padding:5px;text-align:center;border:1.5px solid var(--border-light);border-radius:6px;font-size:13px;font-weight:600;}
+  .grade-input:focus{border-color:var(--pink);outline:none;}
+
+  .search-bar{position:relative;}
+  .search-bar input{padding-left:36px;}
+  .search-bar .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-light);}
+
+  .empty-state{text-align:center;padding:48px 24px;color:var(--text-muted);}
+  .empty-icon{font-size:40px;margin-bottom:12px;}
+
+  .today-class-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light);}
+  .today-class-row:last-child{border-bottom:none;}
+  .class-color-bar{width:5px;height:40px;border-radius:3px;flex-shrink:0;}
+
+  #toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:white;padding:12px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;}
+  #toast.show{opacity:1;}
+
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--pink-light);border-radius:3px;}
+
+  @media(max-width:768px){
+    .sidebar{width:60px;}
+    .sidebar-logo h1,.sidebar-logo p,.nav-item span,.nav-section-title,.user-info{display:none;}
+    .nav-item{padding:12px;justify-content:center;}
+    .main{margin-left:60px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-big">🍎</div>
+      <h1>Ms. Nikki's EFL</h1>
+      <p style="font-size:13px;color:var(--text-muted)">All-In-One Classroom App</p>
+    </div>
+    <div id="login-error" style="display:none;background:#FFEBE8;color:#C0392B;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:14px"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="your@email.com" autocomplete="username"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="Password" autocomplete="current-password"></div>
+    <button class="btn btn-primary" id="login-btn" style="width:100%;justify-content:center;padding:12px;margin-top:8px">Sign In →</button>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light)">
+      <p style="text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Quick Access</p>
+      <div id="login-quick-btns" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+    <p style="text-align:center;font-size:11px;color:var(--text-light);margin-top:16px">Data stored locally · Works offline</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="app" style="display:none">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🍎</div>
+      <h1>Ms. Nikki's EFL</h1>
+      <p>All-In-One</p>
+    </div>
+    <nav>
+      <div class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <div class="nav-item active" onclick="showSection('dashboard')"><span class="nav-icon">🏠</span><span>Dashboard</span></div>
+        <div class="nav-item" onclick="showSection('students')"><span class="nav-icon">👩‍🎓</span><span>Students</span></div>
+        <div class="nav-item" onclick="showSection('attendance')"><span class="nav-icon">✅</span><span>Attendance</span></div>
+        <div class="nav-item" onclick="showSection('grades')"><span class="nav-icon">📊</span><span>Grades</span></div>
+        <div class="nav-item" onclick="showSection('homework')"><span class="nav-icon">📝</span><span>Homework</span></div>
+        <div class="nav-item" onclick="showSection('behavior')"><span class="nav-icon">⭐</span><span>Behavior</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Planning</div>
+        <div class="nav-item" onclick="showSection('lessons')"><span class="nav-icon">📖</span><span>Lesson Planner</span></div>
+        <div class="nav-item" onclick="showSection('resources')"><span class="nav-icon">📁</span><span>Resources</span></div>
+        <div class="nav-item" onclick="showSection('reports')"><span class="nav-icon">📄</span><span>Reports</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Insights</div>
+        <div class="nav-item" onclick="showSection('analytics')"><span class="nav-icon">📈</span><span>Analytics</span></div>
+        <div class="nav-item" onclick="showSection('checkin')"><span class="nav-icon">🔐</span><span>Student Check-In</span></div>
+        <div class="nav-item" onclick="showSection('settings')"><span class="nav-icon">⚙️</span><span>Settings</span></div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div class="avatar" id="sidebar-user-avatar">MN</div>
+        <div class="user-info">
+          <p style="font-size:13px;font-weight:600" id="sidebar-user-name">Ms. Nikki</p>
+          <span style="font-size:11px;color:var(--text-muted)" id="sidebar-user-role">Teacher</span>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="logout()">🚪 Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div id="section-dashboard" class="section active">
+        <div class="page-header">
+          <div class="header-row">
+            <div>
+              <h2 id="dash-greeting">Good morning, Ms. Nikki! 👋</h2>
+              <p id="dash-date"></p>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="showSection('checkin')">🔐 Student Check-In</button>
+          </div>
+        </div>
+        <div class="grid-4" style="margin-bottom:24px">
+          <div class="stat-card"><div class="stat-label">Total Students</div><div class="stat-value" id="stat-total">—</div><div class="stat-sub">across all classes</div></div>
+          <div class="stat-card"><div class="stat-label">Present Today</div><div class="stat-value" id="stat-present" style="color:#2E7D32">—</div><div class="stat-sub" id="stat-att-pct">—</div></div>
+          <div class="stat-card"><div class="stat-label">Absent Today</div><div class="stat-value" id="stat-absent" style="color:#C0392B">—</div><div class="stat-sub">flagged today</div></div>
+          <div class="stat-card"><div class="stat-label">Classes Today</div><div class="stat-value">4</div><div class="stat-sub" id="stat-classes-sub">—</div></div>
+        </div>
+        <!-- Class Cards on Dashboard -->
+        <h3 style="font-size:15px;font-weight:800;margin-bottom:14px">📅 Class Overview</h3>
+        <div class="class-grid" id="dash-class-grid" style="margin-bottom:24px"></div>
+        <div class="grid-2">
+          <div class="card">
+            <h3 style="font-size:15px;font-weight:800;margin-bottom:14px">🚨 Alerts</h3>
+            <div id="alerts-list"></div>
+          </div>
+          <div class="card">
+            <h3 style="font-size:15px;font-weight:800;margin-bottom:14px">🕐 Absent Today</h3>
+            <div id="absent-today-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== STUDENTS ===== -->
+      <div id="section-students" class="section">
+        <!-- Class picker view -->
+        <div id="students-class-view" class="subview active">
+          <div class="page-header">
+            <div class="header-row">
+              <div><h2>Students</h2><p>Select a class to view its students</p></div>
+              <button class="btn btn-primary" onclick="openAddStudent(null)">+ Add Student</button>
+            </div>
+          </div>
+          <div class="class-grid" id="students-class-grid"></div>
+        </div>
+        <!-- Student list view -->
+        <div id="students-list-view" class="subview">
+          <div class="page-header">
+            <div class="header-row">
+              <div>
+                <div class="breadcrumb">
+                  <span class="breadcrumb-item" onclick="backToClasses('students')">Students</span>
+                  <span class="breadcrumb-sep">›</span>
+                  <span class="breadcrumb-current" id="students-bc-class"></span>
+                </div>
+                <h2 id="students-list-title">Class Students</h2>
+              </div>
+              <button class="btn btn-primary" onclick="openAddStudent(currentClass.students)">+ Add Student</button>
+            </div>
+          </div>
+          <div id="students-class-strip"></div>
+          <div class="card" style="margin-bottom:14px;padding:12px 16px">
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="student-search" placeholder="Search students..." oninput="renderStudentList()">
+            </div>
+          </div>
+          <div class="card" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Name</th><th>Attendance</th><th>Grade Avg</th><th>Missing</th><th>Behavior</th><th></th></tr></thead>
+                <tbody id="student-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ATTENDANCE ===== -->
+      <div id="section-attendance" class="section">
+        <div id="attendance-class-view" class="subview active">
+          <div class="page-header">
+            <div class="header-row">
+              <div><h2>Attendance</h2><p>Select a class to take attendance</p></div>
+              <input type="date" id="att-date-global" style="width:auto">
+            </div>
+          </div>
+          <div class="class-grid" id="attendance-class-grid"></div>
+        </div>
+        <div id="attendance-list-view" class="subview">
+          <div class="page-header">
+            <div class="header-row">
+              <div>
+                <div class="breadcrumb">
+                  <span class="breadcrumb-item" onclick="backToClasses('attendance')">Attendance</span>
+                  <span class="breadcrumb-sep">›</span>
+                  <span class="breadcrumb-current" id="att-bc-class"></span>
+                </div>
+                <h2 id="att-list-title">Attendance</h2>
+              </div>
+              <input type="date" id="att-date" onchange="renderAttendance()">
+            </div>
+          </div>
+          <div id="att-class-strip"></div>
+          <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+            <div class="stat-card" style="flex:1;min-width:80px;text-align:center"><div class="stat-label">Present</div><div class="stat-value" id="att-count-P" style="color:#2E7D32;font-size:22px">0</div></div>
+            <div class="stat-card" style="flex:1;min-width:80px;text-align:center"><div class="stat-label">Late</div><div class="stat-value" id="att-count-L" style="color:#E65100;font-size:22px">0</div></div>
+            <div class="stat-card" style="flex:1;min-width:80px;text-align:center"><div class="stat-label">Absent</div><div class="stat-value" id="att-count-A" style="color:#C0392B;font-size:22px">0</div></div>
+            <div class="stat-card" style="flex:1;min-width:80px;text-align:center"><div class="stat-label">Excused</div><div class="stat-value" id="att-count-E" style="color:#1565C0;font-size:22px">0</div></div>
+            <div class="stat-card" style="flex:1;min-width:80px;text-align:center"><div class="stat-label">Unmarked</div><div class="stat-value" id="att-count-U" style="font-size:22px">0</div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <button class="btn btn-outline btn-sm" onclick="markAll('P')">✅ Mark All Present</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearAllAtt()">✕ Clear All</button>
+          </div>
+          <div class="att-grid" id="att-grid"></div>
+        </div>
+      </div>
+
+      <!-- ===== GRADES ===== -->
+      <div id="section-grades" class="section">
+        <div id="grades-class-view" class="subview active">
+          <div class="page-header"><h2>Grades</h2><p>Select a class to enter grades</p></div>
+          <div class="class-grid" id="grades-class-grid"></div>
+        </div>
+        <div id="grades-list-view" class="subview">
+          <div class="page-header">
+            <div class="breadcrumb">
+              <span class="breadcrumb-item" onclick="backToClasses('grades')">Grades</span>
+              <span class="breadcrumb-sep">›</span>
+              <span class="breadcrumb-current" id="grades-bc-class"></span>
+            </div>
+            <h2 id="grades-list-title">Grades</h2>
+          </div>
+          <div id="grades-class-strip"></div>
+          <div class="tabs">
+            <div class="tab active" onclick="switchGradeTab('HW',this)">Homework</div>
+            <div class="tab" onclick="switchGradeTab('Part',this)">Participation</div>
+            <div class="tab" onclick="switchGradeTab('Test',this)">Tests</div>
+            <div class="tab" onclick="switchGradeTab('Speaking',this)">Speaking</div>
+          </div>
+          <div class="card" style="padding:0">
+            <div class="table-wrap">
+              <table><thead><tr id="grade-header-row"></tr></thead><tbody id="grade-table-body"></tbody></table>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:10px">A: 90+ · B: 80+ · C: 70+ · D: 60+ · F: Below 60</p>
+        </div>
+      </div>
+
+      <!-- ===== HOMEWORK ===== -->
+      <div id="section-homework" class="section">
+        <div id="homework-class-view" class="subview active">
+          <div class="page-header">
+            <div class="header-row">
+              <div><h2>Homework</h2><p>Select a class to manage assignments</p></div>
+              <button class="btn btn-primary" onclick="openAddAssignment(null)">+ New Assignment</button>
+            </div>
+          </div>
+          <div class="class-grid" id="homework-class-grid"></div>
+        </div>
+        <div id="homework-list-view" class="subview">
+          <div class="page-header">
+            <div class="header-row">
+              <div>
+                <div class="breadcrumb">
+                  <span class="breadcrumb-item" onclick="backToClasses('homework')">Homework</span>
+                  <span class="breadcrumb-sep">›</span>
+                  <span class="breadcrumb-current" id="hw-bc-class"></span>
+                </div>
+                <h2 id="hw-list-title">Assignments</h2>
+              </div>
+              <button class="btn btn-primary" onclick="openAddAssignment(currentClass.homework)">+ New Assignment</button>
+            </div>
+          </div>
+          <div id="hw-class-strip"></div>
+          <div id="assignment-list"></div>
+        </div>
+      </div>
+
+      <!-- ===== BEHAVIOR ===== -->
+      <div id="section-behavior" class="section">
+        <div id="behavior-class-view" class="subview active">
+          <div class="page-header"><h2>Behavior Tracking</h2><p>Select a class to log behavior</p></div>
+          <div class="class-grid" id="behavior-class-grid"></div>
+        </div>
+        <div id="behavior-list-view" class="subview">
+          <div class="page-header">
+            <div class="breadcrumb">
+              <span class="breadcrumb-item" onclick="backToClasses('behavior')">Behavior</span>
+              <span class="breadcrumb-sep">›</span>
+              <span class="breadcrumb-current" id="beh-bc-class"></span>
+            </div>
+            <h2 id="beh-list-title">Behavior</h2>
+          </div>
+          <div id="beh-class-strip"></div>
+          <div style="margin-bottom:14px">
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">Tap a behavior tag, then tap a student card to log it:</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span class="behavior-chip negative" onclick="logBehaviorMode('Disruptive')">😤 Disruptive</span>
+              <span class="behavior-chip negative" onclick="logBehaviorMode('Not Participating')">😶 Not Participating</span>
+              <span class="behavior-chip negative" onclick="logBehaviorMode('Late Homework')">📋 Late Homework</span>
+              <span class="behavior-chip positive" onclick="logBehaviorMode('Excellent Participation')">🌟 Excellent Participation</span>
+              <span class="behavior-chip positive" onclick="logBehaviorMode('Great Attitude')">😊 Great Attitude</span>
+            </div>
+          </div>
+          <div id="selected-behavior-mode" style="display:none;background:var(--pink-pale);border:1.5px solid var(--pink);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;font-weight:600;color:var(--pink-text)">
+            Mode: <span id="beh-mode-label"></span>
+            <button class="btn btn-ghost btn-sm" style="margin-left:10px" onclick="cancelBehaviorMode()">Cancel</button>
+          </div>
+          <div class="att-grid" id="behavior-grid"></div>
+        </div>
+      </div>
+
+      <!-- ===== LESSONS ===== -->
+      <div id="section-lessons" class="section">
+        <div id="lessons-class-view" class="subview active">
+          <div class="page-header">
+            <div class="header-row">
+              <div><h2>Lesson Planner</h2><p>Select a class to view or add lessons</p></div>
+              <button class="btn btn-primary" onclick="openAddLesson(null)">+ New Lesson</button>
+            </div>
+          </div>
+          <div class="class-grid" id="lessons-class-grid"></div>
+        </div>
+        <div id="lessons-list-view" class="subview">
+          <div class="page-header">
+            <div class="header-row">
+              <div>
+                <div class="breadcrumb">
+                  <span class="breadcrumb-item" onclick="backToClasses('lessons')">Lesson Planner</span>
+                  <span class="breadcrumb-sep">›</span>
+                  <span class="breadcrumb-current" id="lessons-bc-class"></span>
+                </div>
+                <h2 id="lessons-list-title">Lessons</h2>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="date" id="lesson-date-filter" style="width:auto" onchange="renderLessons()">
+                <button class="btn btn-primary" onclick="openAddLesson(currentClass.lessons)">+ New Lesson</button>
+              </div>
+            </div>
+          </div>
+          <div id="lessons-class-strip"></div>
+          <div id="lessons-list"></div>
+        </div>
+      </div>
+
+      <!-- ===== RESOURCES ===== -->
+      <div id="section-resources" class="section">
+        <div id="resources-class-view" class="subview active">
+          <div class="page-header">
+            <div class="header-row">
+              <div><h2>Resources</h2><p>Select a class or view all resources</p></div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-ghost btn-sm" onclick="openResourcesFor('')">View All</button>
+                <button class="btn btn-primary" onclick="openAddResource(null)">+ Add Resource</button>
+              </div>
+            </div>
+          </div>
+          <div class="class-grid" id="resources-class-grid"></div>
+        </div>
+        <div id="resources-list-view" class="subview">
+          <div class="page-header">
+            <div class="header-row">
+              <div>
+                <div class="breadcrumb">
+                  <span class="breadcrumb-item" onclick="backToClasses('resources')">Resources</span>
+                  <span class="breadcrumb-sep">›</span>
+                  <span class="breadcrumb-current" id="res-bc-class"></span>
+                </div>
+                <h2 id="res-list-title">Resources</h2>
+              </div>
+              <button class="btn btn-primary" onclick="openAddResource(currentClass.resources)">+ Add Resource</button>
+            </div>
+          </div>
+          <div id="res-class-strip"></div>
+          <div id="resources-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:4px"></div>
+        </div>
+      </div>
+
+      <!-- ===== REPORTS ===== -->
+      <div id="section-reports" class="section">
+        <div class="page-header"><h2>Reports & Export</h2><p>Generate and export data</p></div>
+        <div class="grid-3" style="margin-bottom:24px">
+          <div class="card" style="cursor:pointer" onclick="generateReport('attendance')">
+            <div style="font-size:28px;margin-bottom:10px">📋</div>
+            <h3 style="font-size:15px;font-weight:800">Attendance Report</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:6px">Export attendance by date range or student</p>
+            <div style="display:flex;gap:6px;margin-top:14px"><span class="badge" style="background:var(--pink-pale);color:var(--pink-text)">Excel</span><span class="badge" style="background:var(--pink-pale);color:var(--pink-text)">Print</span></div>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="generateReport('grades')">
+            <div style="font-size:28px;margin-bottom:10px">📊</div>
+            <h3 style="font-size:15px;font-weight:800">Grade Report</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:6px">Full class gradebook export</p>
+            <div style="display:flex;gap:6px;margin-top:14px"><span class="badge" style="background:var(--pink-pale);color:var(--pink-text)">Excel</span><span class="badge" style="background:var(--pink-pale);color:var(--pink-text)">Word</span></div>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="generateReport('student')">
+            <div style="font-size:28px;margin-bottom:10px">👩‍🎓</div>
+            <h3 style="font-size:15px;font-weight:800">Student Report Cards</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:6px">Individual report cards with all data</p>
+            <div style="display:flex;gap:6px;margin-top:14px"><span class="badge" style="background:var(--pink-pale);color:var(--pink-text)">Word</span><span class="badge" style="background:var(--pink-pale);color:var(--pink-text)">Print</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:15px;font-weight:800;margin-bottom:16px">Export Settings</h3>
+          <div class="grid-2">
+            <div>
+              <div class="form-group"><label>Class</label>
+                <select id="report-class"><option value="">All Classes</option><option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option><option value="4">Class 4</option></select>
+              </div>
+              <div class="form-group"><label>Date From</label><input type="date" id="report-from"></div>
+            </div>
+            <div>
+              <div class="form-group"><label>Format</label>
+                <select id="report-format"><option value="print">Printable (HTML)</option><option value="csv">CSV / Excel</option></select>
+              </div>
+              <div class="form-group"><label>Date To</label><input type="date" id="report-to"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="exportReport()">Export Report →</button>
+        </div>
+      </div>
+
+      <!-- ===== ANALYTICS ===== -->
+      <div id="section-analytics" class="section">
+        <div class="page-header"><h2>Analytics & Insights</h2><p>Performance overview across all classes</p></div>
+        <div class="grid-4" style="margin-bottom:24px" id="analytics-stats"></div>
+        <!-- Class cards in analytics -->
+        <h3 style="font-size:15px;font-weight:800;margin-bottom:14px">Class Performance</h3>
+        <div class="class-grid" id="analytics-class-grid" style="margin-bottom:24px"></div>
+        <div class="grid-2">
+          <div class="card">
+            <h3 style="font-size:15px;font-weight:800;margin-bottom:14px">📉 Most Absent Students</h3>
+            <div id="most-absent-list"></div>
+          </div>
+          <div class="card">
+            <h3 style="font-size:15px;font-weight:800;margin-bottom:14px">⚠️ Common Behavior Issues</h3>
+            <div id="behavior-analytics"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CHECK-IN ===== -->
+      <div id="section-checkin" class="section">
+        <div id="checkin-class-view" class="subview active">
+          <div class="page-header"><h2>Student Check-In</h2><p>Select a class to open check-in</p></div>
+          <div class="class-grid" id="checkin-class-grid"></div>
+        </div>
+        <div id="checkin-list-view" class="subview">
+          <div class="page-header">
+            <div class="breadcrumb">
+              <span class="breadcrumb-item" onclick="backToClasses('checkin')">Check-In</span>
+              <span class="breadcrumb-sep">›</span>
+              <span class="breadcrumb-current" id="ci-bc-class"></span>
+            </div>
+            <h2 id="ci-list-title">Self Check-In</h2>
+          </div>
+          <div id="ci-class-strip"></div>
+          <div class="card" style="max-width:420px;margin:0 auto 24px">
+            <h3 style="text-align:center;font-size:18px;font-weight:800;margin-bottom:6px">Enter Your PIN</h3>
+            <p style="text-align:center;font-size:13px;color:var(--text-muted);margin-bottom:18px">Type your PIN to mark yourself present</p>
+            <div style="display:flex;gap:10px;margin-bottom:14px">
+              <input type="text" id="checkin-pin" maxlength="10" placeholder="PIN..." style="flex:1;text-align:center;font-size:20px;font-weight:700;letter-spacing:4px">
+              <button class="btn btn-primary" onclick="doCheckin()">Check In</button>
+            </div>
+            <div id="checkin-result" style="display:none;text-align:center;padding:14px;border-radius:var(--radius-sm);font-size:15px;font-weight:700"></div>
+          </div>
+          <h3 style="font-size:15px;font-weight:800;margin-bottom:12px">Today's Status</h3>
+          <div class="att-grid" id="checkin-status-list"></div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div id="section-settings" class="section">
+        <div class="page-header"><h2>Settings</h2></div>
+        <!-- ACCOUNT MANAGEMENT -->
+        <div class="card" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h3 style="font-size:15px;font-weight:800">👤 User Accounts</h3>
+            <button class="btn btn-primary btn-sm" onclick="openAddAccount()">+ Add Account</button>
+          </div>
+          <div id="accounts-list"></div>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:12px">Admins can manage accounts and reset data. Teachers have full app access.</p>
+        </div>
+        <!-- CHANGE PASSWORD -->
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="font-size:15px;font-weight:800;margin-bottom:16px">🔑 Change My Password</h3>
+          <div class="grid-3">
+            <div class="form-group"><label>Current Password</label><input type="password" id="pw-current" placeholder="Current password"></div>
+            <div class="form-group"><label>New Password</label><input type="password" id="pw-new" placeholder="New password"></div>
+            <div class="form-group"><label>Confirm New Password</label><input type="password" id="pw-confirm" placeholder="Confirm password"></div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="changePassword()">Update Password</button>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3 style="font-size:15px;font-weight:800;margin-bottom:16px">🏫 Classes</h3>
+            <div id="class-settings-list"></div>
+          </div>
+          <div class="card">
+            <h3 style="font-size:15px;font-weight:800;margin-bottom:16px">📱 Install App</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Install this app on your device to use it offline and access it from your home screen.</p>
+            <button class="btn btn-outline btn-sm" id="pwa-install-btn" onclick="installPWA()" style="display:none">📲 Install to Home Screen</button>
+            <div id="pwa-install-status" style="font-size:13px;color:var(--text-muted)">Open this page in your browser (Chrome, Safari, Edge) to install.</div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h3 style="font-size:15px;font-weight:800;margin-bottom:14px">⚠️ Data</h3>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-outline btn-sm" onclick="exportAllData()">💾 Export Backup (JSON)</button>
+            <button class="btn btn-ghost btn-sm" onclick="importData()">📥 Import Backup</button>
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(this)">
+            <button class="btn btn-danger btn-sm" onclick="if(confirm('Reset ALL class data? Accounts will be kept.'))resetData()">🗑️ Reset Class Data</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<div id="modal-student" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modal-student-title">Add Student</h3><button class="modal-close" onclick="closeModal('modal-student')">✕</button></div>
+    <div class="form-group"><label>Full Name *</label><input type="text" id="s-name"></div>
+    <div class="form-group"><label>Preferred Name</label><input type="text" id="s-preferred"></div>
+    <div class="form-group"><label>Class *</label>
+      <select id="s-class"><option value="1">Class 1 (Purple)</option><option value="2">Class 2 (Pink)</option><option value="3">Class 3 (Blue)</option><option value="4">Class 4 (Yellow)</option></select>
+    </div>
+    <div class="form-group"><label>PIN (for check-in)</label><input type="text" id="s-pin" maxlength="6" placeholder="e.g. 1234"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-student')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStudent()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-profile" class="modal-overlay" style="display:none">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header"><h3 id="profile-name">Profile</h3><button class="modal-close" onclick="closeModal('modal-profile')">✕</button></div>
+    <div id="profile-content"></div>
+  </div>
+</div>
+
+<div id="modal-assignment" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header"><h3>New Assignment</h3><button class="modal-close" onclick="closeModal('modal-assignment')">✕</button></div>
+    <div class="form-group"><label>Title *</label><input type="text" id="a-title"></div>
+    <div class="form-group"><label>Class *</label>
+      <select id="a-class"><option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option><option value="4">Class 4</option></select>
+    </div>
+    <div class="form-group"><label>Due Date</label><input type="date" id="a-due"></div>
+    <div class="form-group"><label>Description</label><textarea id="a-desc" rows="3"></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-assignment')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAssignment()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-lesson" class="modal-overlay" style="display:none">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header"><h3>Lesson Plan</h3><button class="modal-close" onclick="closeModal('modal-lesson')">✕</button></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Class *</label><select id="l-class"><option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option><option value="4">Class 4</option></select></div>
+      <div class="form-group"><label>Date *</label><input type="date" id="l-date"></div>
+    </div>
+    <div class="form-group"><label>Objective</label><textarea id="l-objective" rows="2"></textarea></div>
+    <div class="form-group"><label>Materials</label><input type="text" id="l-materials"></div>
+    <div class="form-group"><label>✅ What Worked</label><textarea id="l-worked" rows="2"></textarea></div>
+    <div class="form-group"><label>⚠️ What Didn't Work</label><textarea id="l-didnt" rows="2"></textarea></div>
+    <div class="form-group"><label>Student Struggles</label><input type="text" id="l-struggles"></div>
+    <div class="form-group"><label>📌 Stopped At / Continue From</label><input type="text" id="l-stopped"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-lesson')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLesson()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-resource" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header"><h3>Add Resource</h3><button class="modal-close" onclick="closeModal('modal-resource')">✕</button></div>
+    <div class="form-group"><label>Title *</label><input type="text" id="r-title"></div>
+    <div class="form-group"><label>Type</label><select id="r-type"><option value="PDF">PDF</option><option value="Worksheet">Worksheet</option><option value="Google Drive">Google Drive</option><option value="Link">Web Link</option></select></div>
+    <div class="form-group"><label>URL</label><input type="text" id="r-url" placeholder="https://..."></div>
+    <div class="form-group"><label>Class</label><select id="r-class"><option value="">All Classes</option><option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option><option value="4">Class 4</option></select></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-resource')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveResource()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-account" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modal-account-title">Add Account</h3><button class="modal-close" onclick="closeModal('modal-account')">✕</button></div>
+    <div class="form-group"><label>Display Name *</label><input type="text" id="acc-name" placeholder="e.g. Ms. Nikki"></div>
+    <div class="form-group"><label>Email *</label><input type="email" id="acc-email" placeholder="teacher@school.com" autocomplete="off"></div>
+    <div class="form-group"><label>Password *</label><input type="password" id="acc-pass" placeholder="At least 6 characters" autocomplete="new-password"></div>
+    <div class="form-group"><label>Role</label>
+      <select id="acc-role">
+        <option value="teacher">Teacher (full app access)</option>
+        <option value="admin">Admin (+ account management)</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-account')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAccount()">Save Account</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ===================== DATA =====================
+const CLASSES = {
+  '1':{name:'Class 1',color:'#D4B8F0',bg:'#F5EEFF',text:'#6B3FA0',border:'#C9ADEE',key:'c1',emoji:'💜'},
+  '2':{name:'Class 2',color:'#FFB6C8',bg:'#FFF0F5',text:'#B83A5C',border:'#F9A0B8',key:'c2',emoji:'🩷'},
+  '3':{name:'Class 3',color:'#B8D8F0',bg:'#EFF7FF',text:'#2A6EA8',border:'#9FCBE8',key:'c3',emoji:'💙'},
+  '4':{name:'Class 4',color:'#FFE8A0',bg:'#FFFAE8',text:'#8A6A00',border:'#F5D870',key:'c4',emoji:'💛'}
+};
+
+// currentClass stores which class is selected per section
+const currentClass = {students:null,attendance:null,grades:null,homework:null,behavior:null,lessons:null,resources:null,checkin:null};
+
+function ls(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+let students=ls('efl_students',null);
+let attendance=ls('efl_attendance',{});
+let grades=ls('efl_grades',{});
+let assignments=ls('efl_assignments',[]);
+let behaviors=ls('efl_behaviors',[]);
+let lessons=ls('efl_lessons',[]);
+let resources=ls('efl_resources',[]);
+
+if(!students){students=genStudents();lsSet('efl_students',students);}
+if(!assignments.length){assignments=sampleAssignments();lsSet('efl_assignments',assignments);}
+if(!lessons.length){lessons=sampleLessons();lsSet('efl_lessons',lessons);}
+if(!resources.length){resources=sampleResources();lsSet('efl_resources',resources);}
+
+function save(){lsSet('efl_students',students);lsSet('efl_attendance',attendance);lsSet('efl_grades',grades);lsSet('efl_assignments',assignments);lsSet('efl_behaviors',behaviors);lsSet('efl_lessons',lessons);lsSet('efl_resources',resources);}
+
+function genStudents(){
+  const names=[
+    ['Emma Kim','Min-jun Lee','Ji-ho Park','Soo-yeon Choi','Hyun-woo Kang','Ye-jin Oh','Tae-yang Yoon','Na-yeon Jung'],
+    ['Sung-min Lim','Hana Shin','Jae-won Kim','Yuna Lee','Do-hyun Park','Seo-yeon Han','Min-seo Jung','Ji-woo Choi'],
+    ['Se-jun Oh','Ra-on Kim','Woo-jin Yoon','Ga-eun Park','Hyun-ji Lee','Tae-woo Shin','Soo-bin Kim','Ji-yeon Lim'],
+    ['Da-eun Han','Min-ho Jung','Ye-rin Kim','Sung-woo Park','Na-ra Lee','Ji-hoon Oh','Seo-jun Kang','Ha-yoon Choi']
+  ];
+  const prefs=['Emma','Minjun','Jiho','Soo','Hyunwoo','Yejin','Taeyang','Nayeon','Sungmin','Hana','Jaewon','Yuna','Dohyun','Seoyeon','Minseo','Jiwoo','Sejun','Raon','Woojin','Gaeun','Hyunji','Taewoo','Soobin','Jiyeon','Daeun','Minho','Yerin','Sungwoo','Nara','Jihoon','Seojun','Hayoon'];
+  let r=[],idx=0;
+  names.forEach((cls,ci)=>cls.forEach((n,ni)=>{r.push({id:'s'+(idx+1),name:n,preferred:prefs[idx]||n.split(' ')[0],classId:String(ci+1),pin:String(1000+idx*7+ni*3).slice(0,4),notes:[]});idx++;}));
+  return r;
+}
+
+function sampleAssignments(){
+  const t=new Date(),fmt=d=>d.toISOString().split('T')[0];
+  const nw=new Date(t);nw.setDate(t.getDate()+7);
+  return [
+    {id:'a1',title:'Unit 3 Vocabulary Quiz',classId:'1',due:fmt(nw),desc:'Study pages 34-38',submissions:{}},
+    {id:'a2',title:'Reading Comprehension HW',classId:'2',due:fmt(t),desc:'Complete worksheet B',submissions:{}},
+    {id:'a3',title:'Speaking Practice Recording',classId:'3',due:fmt(nw),desc:'Record yourself for 2 minutes',submissions:{}},
+    {id:'a4',title:'Grammar Workbook pp.20-22',classId:'4',due:fmt(t),desc:'All exercises',submissions:{}},
+  ];
+}
+
+function sampleLessons(){
+  const d=new Date(),fmt=x=>x.toISOString().split('T')[0];
+  const yd=new Date();yd.setDate(d.getDate()-1);
+  return [
+    {id:'l1',classId:'1',date:fmt(d),objective:'Unit 4 vocabulary – food and cooking',materials:'Textbook p.40, flashcards',worked:'Flashcard game was effective',didnt:'Pronunciation ran over time',struggles:'New vocabulary retention',stopped:'Page 42, Exercise 3'},
+    {id:'l2',classId:'2',date:fmt(yd),objective:'Reading comprehension – tourist brochures',materials:'Worksheet B, markers',worked:'Group work was great',didnt:'Some students struggled with new words',struggles:'Reading speed',stopped:'Worksheet B section 2'},
+    {id:'l3',classId:'3',date:fmt(d),objective:'Speaking: giving directions',materials:'City map handout',worked:'Role play went well',didnt:'Some pairs were too quiet',struggles:'Prepositions of place',stopped:'Unit 3, dialogue activity'},
+    {id:'l4',classId:'4',date:fmt(d),objective:'Grammar: present perfect tense',materials:'Workbook pp.20-22',worked:'Written exercises were good',didnt:'Students confused with simple past',struggles:'Been vs gone',stopped:'Exercise 5b'},
+  ];
+}
+
+function sampleResources(){
+  return [
+    {id:'r1',title:'Unit 3 Vocabulary Worksheet',type:'Worksheet',url:'',classId:'1'},
+    {id:'r2',title:'Grammar Reference Guide',type:'PDF',url:'',classId:''},
+    {id:'r3',title:'Speaking Rubric',type:'PDF',url:'',classId:''},
+    {id:'r4',title:'Class 2 Google Drive Folder',type:'Google Drive',url:'https://drive.google.com',classId:'2'},
+  ];
+}
+
+// ===================== UTILS =====================
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function closeModal(id){document.getElementById(id).style.display='none';}
+function openModal(id){document.getElementById(id).style.display='flex';}
+function todayStr(){return new Date().toISOString().split('T')[0];}
+function getStudentAttPct(sid){let t=0,p=0;Object.values(attendance).forEach(d=>{if(d[sid]){t++;if(['P','L','E'].includes(d[sid]))p++;}});return t>0?Math.round(p/t*100):null;}
+function getStudentGradeAvg(sid){let t=0,c=0;Object.values(grades).forEach(cg=>{if(cg[sid])Object.values(cg[sid]).forEach(g=>{const n=parseFloat(g);if(!isNaN(n)){t+=n;c++;}});});return c>0?Math.round(t/c):null;}
+function getStudentMissing(sid){let n=0;assignments.forEach(a=>{const s=students.find(x=>x.id===sid);if(s&&a.classId===s.classId&&(!a.submissions[sid]||a.submissions[sid]==='Missing'))n++;});return n;}
+function getStudentBehSummary(sid){const b=behaviors.filter(x=>x.studentId===sid);return{pos:b.filter(x=>x.type==='positive').length,neg:b.filter(x=>x.type==='negative').length,recent:b.slice(-3)};}
+function gradeToLetter(n){if(n===null)return'—';if(n>=90)return'A';if(n>=80)return'B';if(n>=70)return'C';if(n>=60)return'D';return'F';}
+function classBadge(cid){const c=CLASSES[cid];return c?`<span class="badge badge-${c.key}">${c.name}</span>`:'';};
+function mkAvatar(name,size=28){return`<div class="avatar" style="width:${size}px;height:${size}px;font-size:${Math.floor(size*0.4)}px">${name.slice(0,2).toUpperCase()}</div>`;}
+
+// ===================== CLASS HEADER STRIP =====================
+function renderClassStrip(containerId, cid){
+  const c=CLASSES[cid];
+  const count=students.filter(s=>s.classId===cid).length;
+  document.getElementById(containerId).innerHTML=`
+    <div class="class-header-strip ${c.key}">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:22px">${c.emoji}</span>
+        <div><div class="chs-title">${c.name}</div><div style="font-size:12px;color:var(--text-muted)">${count} students</div></div>
+      </div>
+    </div>`;
+}
+
+// ===================== CLASS GRID BUILDER =====================
+function buildClassGrid(containerId, sectionKey, onClick){
+  const grid=document.getElementById(containerId);
+  grid.innerHTML=Object.entries(CLASSES).map(([cid,c])=>{
+    const cls=students.filter(s=>s.classId===cid);
+    const count=cls.length;
+    const today=todayStr();
+    const todayAtt=attendance[today]||{};
+    const present=cls.filter(s=>todayAtt[s.id]==='P').length;
+    const attPct=count>0?Math.round(present/count*100):0;
+    const lastLesson=lessons.filter(l=>l.classId===cid).sort((a,b)=>b.date.localeCompare(a.date))[0];
+    const missing=cls.reduce((sum,s)=>sum+getStudentMissing(s.id),0);
+    const extraStats = {
+      students:`<span class="cc-stat">${count} students</span>`,
+      attendance:`<span class="cc-stat">${present}/${count} present</span>`,
+      lessons:`<span class="cc-stat">${lessons.filter(l=>l.classId===cid).length} lessons</span>`,
+      homework:`<span class="cc-stat">${assignments.filter(a=>a.classId===cid).length} assignments</span>`,
+      behavior:`<span class="cc-stat">${behaviors.filter(b=>b.studentId&&students.find(s=>s.id===b.studentId&&s.classId===cid)&&b.type==='positive').length} ⭐ pos</span>`,
+      resources:`<span class="cc-stat">${resources.filter(r=>r.classId===cid||r.classId==='').length} files</span>`,
+      checkin:`<span class="cc-stat">${present} checked in</span>`,
+      grades:`<span class="cc-stat">${attPct}% att</span>`,
+    };
+    const stat1 = extraStats[sectionKey]||extraStats.students;
+    const stat2 = `<span class="cc-stat">${missing} missing HW</span>`;
+    return `<div class="class-card ${c.key}" onclick="${onClick}('${cid}')">
+      <span class="cc-icon">${c.emoji}</span>
+      <div class="cc-label">${c.key.toUpperCase()}</div>
+      <div class="cc-name">${c.name}</div>
+      <div class="cc-count">${count} students</div>
+      <div class="cc-stats">${stat1}${stat2}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== NAVIGATION =====================
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(item=>{if(item.getAttribute('onclick')?.includes("'"+id+"'"))item.classList.add('active');});
+  // Reset to class view for sections that have subviews
+  const sv=['students','attendance','grades','homework','behavior','lessons','resources','checkin'];
+  if(sv.includes(id)){
+    switchSubview(id, id+'-class-view');
+    currentClass[id]=null;
+  }
+  if(id==='dashboard')renderDashboard();
+  if(id==='reports'){document.getElementById('report-from').value=todayStr();document.getElementById('report-to').value=todayStr();}
+  if(id==='analytics')renderAnalytics();
+  if(id==='settings')renderClassSettings();
+  // Build class grids
+  if(id==='students')buildClassGrid('students-class-grid','students','openClassSection_students');
+  if(id==='attendance'){buildClassGrid('attendance-class-grid','attendance','openClassSection_attendance');document.getElementById('att-date-global').value=todayStr();}
+  if(id==='grades')buildClassGrid('grades-class-grid','grades','openClassSection_grades');
+  if(id==='homework')buildClassGrid('homework-class-grid','homework','openClassSection_homework');
+  if(id==='behavior')buildClassGrid('behavior-class-grid','behavior','openClassSection_behavior');
+  if(id==='lessons')buildClassGrid('lessons-class-grid','lessons','openClassSection_lessons');
+  if(id==='resources')buildClassGrid('resources-class-grid','resources','openClassSection_resources');
+  if(id==='checkin')buildClassGrid('checkin-class-grid','checkin','openClassSection_checkin');
+}
+
+function switchSubview(section, viewId){
+  document.querySelectorAll('#section-'+section+' .subview').forEach(v=>v.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+}
+
+function backToClasses(section){
+  switchSubview(section, section+'-class-view');
+  currentClass[section]=null;
+  buildClassGrid(section+'-class-grid', section, 'openClassSection_'+section);
+}
+
+// Per-section openers (called from class card onclick)
+function openClassSection_students(cid){currentClass.students=cid;document.getElementById('students-bc-class').textContent=CLASSES[cid].name;document.getElementById('students-list-title').textContent=CLASSES[cid].name+' Students';renderClassStrip('students-class-strip',cid);switchSubview('students','students-list-view');renderStudentList();}
+function openClassSection_attendance(cid){currentClass.attendance=cid;document.getElementById('att-bc-class').textContent=CLASSES[cid].name;document.getElementById('att-list-title').textContent=CLASSES[cid].name+' — Attendance';const d=document.getElementById('att-date-global').value||todayStr();document.getElementById('att-date').value=d;renderClassStrip('att-class-strip',cid);switchSubview('attendance','attendance-list-view');renderAttendance();}
+function openClassSection_grades(cid){currentClass.grades=cid;document.getElementById('grades-bc-class').textContent=CLASSES[cid].name;document.getElementById('grades-list-title').textContent=CLASSES[cid].name+' — Grades';renderClassStrip('grades-class-strip',cid);switchSubview('grades','grades-list-view');renderGrades();}
+function openClassSection_homework(cid){currentClass.homework=cid;document.getElementById('hw-bc-class').textContent=CLASSES[cid].name;document.getElementById('hw-list-title').textContent=CLASSES[cid].name+' — Assignments';renderClassStrip('hw-class-strip',cid);switchSubview('homework','homework-list-view');renderAssignments();}
+function openClassSection_behavior(cid){currentClass.behavior=cid;document.getElementById('beh-bc-class').textContent=CLASSES[cid].name;document.getElementById('beh-list-title').textContent=CLASSES[cid].name+' — Behavior';renderClassStrip('beh-class-strip',cid);switchSubview('behavior','behavior-list-view');renderBehavior();}
+function openClassSection_lessons(cid){currentClass.lessons=cid;document.getElementById('lessons-bc-class').textContent=CLASSES[cid].name;document.getElementById('lessons-list-title').textContent=CLASSES[cid].name+' — Lessons';document.getElementById('lesson-date-filter').value='';renderClassStrip('lessons-class-strip',cid);switchSubview('lessons','lessons-list-view');renderLessons();}
+function openClassSection_resources(cid){openResourcesFor(cid);}
+function openClassSection_checkin(cid){currentClass.checkin=cid;document.getElementById('ci-bc-class').textContent=CLASSES[cid].name;document.getElementById('ci-list-title').textContent=CLASSES[cid].name+' — Check-In';renderClassStrip('ci-class-strip',cid);switchSubview('checkin','checkin-list-view');renderCheckin();}
+
+function openResourcesFor(cid){
+  currentClass.resources=cid;
+  const label=cid?CLASSES[cid].name:'All Classes';
+  document.getElementById('res-bc-class').textContent=label;
+  document.getElementById('res-list-title').textContent=label+' — Resources';
+  if(cid)renderClassStrip('res-class-strip',cid);
+  else document.getElementById('res-class-strip').innerHTML='';
+  switchSubview('resources','resources-list-view');
+  renderResources();
+}
+
+// ===================== AUTH =====================
+function defaultAccounts(){
+  return [{id:'u1',name:'Ms. Nikki',email:'nikki@efl.com',password:'password123',role:'admin'}];
+}
+function getAccounts(){try{const a=localStorage.getItem('efl_accounts');return a?JSON.parse(a):defaultAccounts();}catch{return defaultAccounts();}}
+function saveAccounts(accounts){localStorage.setItem('efl_accounts',JSON.stringify(accounts));}
+let currentUser = null;
+
+function renderQuickBtns(){
+  const accounts = getAccounts();
+  document.getElementById('login-quick-btns').innerHTML = accounts.map(a =>
+    `<button class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:10px" onclick="quickLogin('${a.email}')">
+      <div class="avatar" style="width:24px;height:24px;font-size:10px">${a.name.slice(0,2).toUpperCase()}</div>
+      <div style="text-align:left"><div style="font-size:12px;font-weight:700">${a.name}</div><div style="font-size:10px;color:var(--text-muted)">${a.email}</div></div>
+      <span style="margin-left:auto;font-size:10px;color:var(--text-light)">${a.role}</span>
+    </button>`
+  ).join('');
+}
+function quickLogin(email){
+  document.getElementById('login-email').value = email;
+  document.getElementById('login-pass').focus();
+}
+
+document.getElementById('login-btn').onclick = function(){
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  if(!email||!pass){errEl.textContent='Please fill in all fields';errEl.style.display='block';return;}
+  const accounts = getAccounts();
+  const user = accounts.find(a=>a.email.toLowerCase()===email && a.password===pass);
+  if(!user){errEl.textContent='Incorrect email or password. Please try again.';errEl.style.display='block';return;}
+  errEl.style.display='none';
+  currentUser = user;
+  sessionStorage.setItem('efl_logged', JSON.stringify({id:user.id,email:user.email}));
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  initApp();
+};
+
+document.getElementById('login-email').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-pass').focus();});
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-btn').click();});
+
+// ===================== ACCOUNT MANAGEMENT =====================
+function openAddAccount(){
+  const isAdmin = currentUser&&currentUser.role==='admin';
+  if(!isAdmin){toast('Only admins can manage accounts');return;}
+  document.getElementById('modal-account-title').textContent='Add Account';
+  document.getElementById('acc-name').value='';document.getElementById('acc-email').value='';
+  document.getElementById('acc-pass').value='';document.getElementById('acc-role').value='teacher';
+  document.getElementById('modal-account').dataset.editing='';
+  openModal('modal-account');
+}
+function saveAccount(){
+  const name=document.getElementById('acc-name').value.trim();
+  const email=document.getElementById('acc-email').value.trim().toLowerCase();
+  const pass=document.getElementById('acc-pass').value;
+  const role=document.getElementById('acc-role').value;
+  if(!name||!email){toast('Name and email are required');return;}
+  const accounts=getAccounts();
+  const editing=document.getElementById('modal-account').dataset.editing;
+  if(!editing&&accounts.find(a=>a.email.toLowerCase()===email)){toast('An account with this email already exists');return;}
+  if(!editing&&pass.length<6){toast('Password must be at least 6 characters');return;}
+  if(editing){
+    const i=accounts.findIndex(a=>a.id===editing);
+    if(i>=0){accounts[i].name=name;accounts[i].email=email;accounts[i].role=role;if(pass.length>=6)accounts[i].password=pass;}
+  } else {
+    accounts.push({id:'u'+Date.now(),name,email,password:pass,role});
+  }
+  saveAccounts(accounts);closeModal('modal-account');renderAccountsList();toast('Account saved ✅');
+}
+function editAccount(uid){
+  const accounts=getAccounts();const a=accounts.find(x=>x.id===uid);if(!a)return;
+  document.getElementById('modal-account-title').textContent='Edit Account';
+  document.getElementById('acc-name').value=a.name;document.getElementById('acc-email').value=a.email;
+  document.getElementById('acc-pass').value='';document.getElementById('acc-role').value=a.role;
+  document.getElementById('modal-account').dataset.editing=uid;
+  openModal('modal-account');
+}
+function deleteAccount(uid){
+  if(currentUser&&currentUser.id===uid){toast("You can't delete your own account");return;}
+  if(!confirm('Remove this account?'))return;
+  const accounts=getAccounts().filter(a=>a.id!==uid);
+  saveAccounts(accounts);renderAccountsList();toast('Account removed');
+}
+function renderAccountsList(){
+  const accounts=getAccounts();
+  const isAdmin=currentUser&&currentUser.role==='admin';
+  document.getElementById('accounts-list').innerHTML=accounts.map(a=>
+    `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-light)">
+      <div class="avatar" style="width:36px;height:36px;font-size:13px">${a.name.slice(0,2).toUpperCase()}</div>
+      <div style="flex:1">
+        <p style="font-size:13px;font-weight:700">${a.name}${a.id===currentUser?.id?' <span style="font-size:10px;color:var(--pink-text)">(you)</span>':''}</p>
+        <p style="font-size:11px;color:var(--text-muted)">${a.email}</p>
+      </div>
+      <span class="badge" style="background:${a.role==='admin'?'var(--pink-pale)':'#E3F2FD'};color:${a.role==='admin'?'var(--pink-text)':'#1565C0'}">${a.role}</span>
+      ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="editAccount('${a.id}')">Edit</button>
+      ${a.id!==currentUser?.id?`<button class="btn btn-danger btn-sm" onclick="deleteAccount('${a.id}')">Remove</button>`:''}`:'' }
+    </div>`
+  ).join('');
+}
+function changePassword(){
+  const cur=document.getElementById('pw-current').value;
+  const nw=document.getElementById('pw-new').value;
+  const conf=document.getElementById('pw-confirm').value;
+  if(!cur||!nw||!conf){toast('Fill in all password fields');return;}
+  if(nw!==conf){toast("New passwords don't match");return;}
+  if(nw.length<6){toast('Password must be at least 6 characters');return;}
+  const accounts=getAccounts();
+  const user=accounts.find(a=>a.id===currentUser.id);
+  if(!user||user.password!==cur){toast('Current password is incorrect');return;}
+  user.password=nw;currentUser.password=nw;
+  saveAccounts(accounts);
+  document.getElementById('pw-current').value='';document.getElementById('pw-new').value='';document.getElementById('pw-confirm').value='';
+  toast('Password updated ✅');
+}
+
+// PWA install prompt
+let pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); pwaPrompt = e;
+  document.getElementById('pwa-install-btn').style.display='inline-flex';
+  document.getElementById('pwa-install-status').textContent='Ready to install!';
+});
+function installPWA(){
+  if(!pwaPrompt)return;
+  pwaPrompt.prompt();
+  pwaPrompt.userChoice.then(r=>{if(r.outcome==='accepted'){toast('App installed! 🎉');document.getElementById('pwa-install-btn').style.display='none';document.getElementById('pwa-install-status').textContent='Installed ✅';}});
+}
+
+function importData(){document.getElementById('import-file').click();}
+function handleImport(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{try{
+    const d=JSON.parse(e.target.result);
+    if(d.students){students=d.students;lsSet('efl_students',students);}
+    if(d.attendance){attendance=d.attendance;lsSet('efl_attendance',attendance);}
+    if(d.grades){grades=d.grades;lsSet('efl_grades',grades);}
+    if(d.assignments){assignments=d.assignments;lsSet('efl_assignments',assignments);}
+    if(d.behaviors){behaviors=d.behaviors;lsSet('efl_behaviors',behaviors);}
+    if(d.lessons){lessons=d.lessons;lsSet('efl_lessons',lessons);}
+    if(d.resources){resources=d.resources;lsSet('efl_resources',resources);}
+    toast('Backup imported ✅');renderDashboard();
+  }catch{toast('Invalid backup file');}};
+  reader.readAsText(file);input.value='';
+}
+
+// ===================== INIT =====================
+function initApp(){
+  const now=new Date();
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const hr=now.getHours();
+  const g=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  const name=currentUser?currentUser.name.split(' ')[0]:'Ms. Nikki';
+  document.getElementById('dash-greeting').textContent=`${g}, ${name}! 👋`;
+  document.getElementById('dash-date').textContent=`${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  // Update sidebar footer
+  document.getElementById('sidebar-user-name').textContent=currentUser?currentUser.name:'Teacher';
+  document.getElementById('sidebar-user-role').textContent=currentUser?currentUser.role:'';
+  document.getElementById('sidebar-user-avatar').textContent=(currentUser?currentUser.name:'T').slice(0,2).toUpperCase();
+  renderDashboard();
+}
+
+// ===================== DASHBOARD =====================
+function renderDashboard(){
+  const today=todayStr();
+  const todayAtt=attendance[today]||{};
+  const total=students.length;
+  const present=Object.values(todayAtt).filter(v=>v==='P').length;
+  const absent=Object.values(todayAtt).filter(v=>v==='A').length;
+  document.getElementById('stat-total').textContent=total;
+  document.getElementById('stat-present').textContent=present;
+  document.getElementById('stat-att-pct').textContent=total>0?Math.round(present/total*100)+'% today':'—';
+  document.getElementById('stat-absent').textContent=absent;
+
+  // Dashboard class grid — clicking goes to attendance for that class
+  const grid=document.getElementById('dash-class-grid');
+  grid.innerHTML=Object.entries(CLASSES).map(([cid,c])=>{
+    const cls=students.filter(s=>s.classId===cid);
+    const p=cls.filter(s=>todayAtt[s.id]==='P').length;
+    const notTaken=!cls.some(s=>todayAtt[s.id]);
+    const times=['9:00 AM','10:30 AM','1:00 PM','2:30 PM'];
+    const missing=cls.reduce((sum,s)=>sum+getStudentMissing(s.id),0);
+    return `<div class="class-card ${c.key}" onclick="showSection('attendance');setTimeout(()=>openClassSection_attendance('${cid}'),50)">
+      <span class="cc-icon">${c.emoji}</span>
+      <div class="cc-label">${times[parseInt(cid)-1]}</div>
+      <div class="cc-name">${c.name}</div>
+      <div class="cc-count">${cls.length} students</div>
+      <div class="cc-stats">
+        <span class="cc-stat">${p}/${cls.length} present</span>
+        <span class="cc-stat" style="background:${notTaken?'#FFE0B2':'#C8E6C9'};color:${notTaken?'#E65100':'#2E7D32'}">${notTaken?'Att. not taken':'✅ Done'}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Alerts
+  const alertsEl=document.getElementById('alerts-list');
+  const alerts=[];
+  Object.keys(CLASSES).forEach(cid=>{if(!students.filter(s=>s.classId===cid).some(s=>todayAtt[s.id]))alerts.push(`⚠️ Attendance not taken for ${CLASSES[cid].name}`);});
+  const missing2=students.filter(s=>getStudentMissing(s.id)>2);
+  if(missing2.length)alerts.push(`📋 ${missing2.length} students have 2+ missing assignments`);
+  alertsEl.innerHTML=alerts.length?alerts.map(a=>`<div style="padding:9px 0;border-bottom:1px solid var(--border-light);font-size:13px">${a}</div>`).join(''):'<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px">✅ All clear!</div>';
+
+  // Absent
+  const absentEl=document.getElementById('absent-today-list');
+  const abs=students.filter(s=>todayAtt[s.id]==='A');
+  absentEl.innerHTML=abs.length?abs.map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-light)">${mkAvatar(s.preferred,28)}<div style="flex:1"><p style="font-size:13px;font-weight:600">${s.preferred}</p>${classBadge(s.classId)}</div><span class="badge badge-absent">Absent</span></div>`).join(''):'<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px">No absences today 🎉</div>';
+}
+
+// ===================== STUDENTS =====================
+function renderStudentList(){
+  const cid=currentClass.students;
+  const search=document.getElementById('student-search').value.toLowerCase();
+  const cls=students.filter(s=>s.classId===cid&&(!search||s.name.toLowerCase().includes(search)||s.preferred.toLowerCase().includes(search)));
+  const tbody=document.getElementById('student-table-body');
+  tbody.innerHTML=cls.map(s=>{
+    const att=getStudentAttPct(s.id);
+    const g=getStudentGradeAvg(s.id);
+    const miss=getStudentMissing(s.id);
+    const beh=getStudentBehSummary(s.id);
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:10px">${mkAvatar(s.preferred,32)}<div><p style="font-weight:700">${s.name}</p><p style="font-size:11px;color:var(--text-muted)">${s.preferred} · PIN: ${s.pin}</p></div></div></td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="progress-bar" style="width:60px"><div class="progress-fill ${(att||0)>=80?'progress-green':(att||0)>=60?'progress-amber':'progress-red'}" style="width:${att||0}%"></div></div><span style="font-size:12px;font-weight:600">${att!==null?att+'%':'—'}</span></div></td>
+      <td><span style="font-weight:800;color:${g!==null?(g>=70?'#2E7D32':g>=60?'#E65100':'#C0392B'):'var(--text-muted)'}">${g!==null?gradeToLetter(g)+' ('+g+')':'—'}</span></td>
+      <td>${miss>0?`<span class="badge badge-missing">${miss} missing</span>`:'<span class="badge badge-submitted">All done</span>'}</td>
+      <td><span style="font-size:12px">🌟${beh.pos} ⚠️${beh.neg}</span></td>
+      <td><div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="openProfile('${s.id}')">View</button>
+        <button class="btn btn-outline btn-sm" onclick="openEditStudent('${s.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">Del</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  if(!cls.length)tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👩‍🎓</div><p>No students found</p></div></td></tr>';
+}
+
+function openAddStudent(cid){
+  document.getElementById('modal-student-title').textContent='Add Student';
+  document.getElementById('s-name').value='';document.getElementById('s-preferred').value='';
+  document.getElementById('s-class').value=cid||'1';document.getElementById('s-pin').value='';
+  document.getElementById('modal-student').dataset.editing='';
+  openModal('modal-student');
+}
+function openEditStudent(sid){
+  const s=students.find(x=>x.id===sid);if(!s)return;
+  document.getElementById('modal-student-title').textContent='Edit Student';
+  document.getElementById('s-name').value=s.name;document.getElementById('s-preferred').value=s.preferred;
+  document.getElementById('s-class').value=s.classId;document.getElementById('s-pin').value=s.pin||'';
+  document.getElementById('modal-student').dataset.editing=sid;
+  openModal('modal-student');
+}
+function saveStudent(){
+  const name=document.getElementById('s-name').value.trim();
+  if(!name){toast('Please enter a name');return;}
+  const sid=document.getElementById('modal-student').dataset.editing;
+  const data={name,preferred:document.getElementById('s-preferred').value.trim()||name.split(' ')[0],classId:document.getElementById('s-class').value,pin:document.getElementById('s-pin').value.trim()||Math.floor(1000+Math.random()*9000).toString(),notes:[]};
+  if(sid){const i=students.findIndex(s=>s.id===sid);if(i>=0)students[i]={...students[i],...data};toast('Updated ✅');}
+  else{data.id='s'+Date.now();students.push(data);toast('Student added ✅');}
+  save();closeModal('modal-student');renderStudentList();
+}
+function deleteStudent(sid){
+  if(!confirm('Remove this student?'))return;
+  students=students.filter(s=>s.id!==sid);save();renderStudentList();toast('Removed');
+}
+function openProfile(sid){
+  const s=students.find(x=>x.id===sid);if(!s)return;
+  const att=getStudentAttPct(s.id),g=getStudentGradeAvg(s.id),miss=getStudentMissing(s.id),beh=getStudentBehSummary(s.id),c=CLASSES[s.classId];
+  document.getElementById('profile-name').textContent=s.name;
+  document.getElementById('profile-content').innerHTML=`
+    <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      <div class="stat-card" style="flex:1;min-width:80px;text-align:center"><div class="stat-label">Attendance</div><div class="stat-value" style="font-size:20px;color:${att===null?'var(--text-muted)':(att>=80?'#2E7D32':att>=60?'#E65100':'#C0392B')}">${att!==null?att+'%':'—'}</div></div>
+      <div class="stat-card" style="flex:1;min-width:80px;text-align:center"><div class="stat-label">Grade</div><div class="stat-value" style="font-size:20px">${g!==null?gradeToLetter(g):'—'}</div></div>
+      <div class="stat-card" style="flex:1;min-width:80px;text-align:center"><div class="stat-label">Missing</div><div class="stat-value" style="font-size:20px;color:${miss>0?'#C0392B':'#2E7D32'}">${miss}</div></div>
+      <div class="stat-card" style="flex:1;min-width:80px;text-align:center"><div class="stat-label">Behavior</div><div class="stat-value" style="font-size:18px">🌟${beh.pos}</div><div class="stat-sub">⚠️${beh.neg}</div></div>
+    </div>
+    <div style="background:${c.bg};border-radius:8px;padding:10px 14px;margin-bottom:14px">
+      <p style="font-size:12px;font-weight:600;color:${c.text}">${c.name} · Preferred: ${s.preferred} · PIN: ${s.pin||'Not set'}</p>
+    </div>
+    <p style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px">Recent Behavior</p>
+    ${beh.recent.length?beh.recent.map(b=>`<div style="padding:7px 0;border-bottom:1px solid var(--border-light);font-size:13px"><span class="behavior-chip ${b.type}" style="cursor:default">${b.label}</span><span style="font-size:11px;color:var(--text-muted);margin-left:8px">${b.date}</span></div>`).join(''):'<p style="font-size:13px;color:var(--text-muted)">No logs yet</p>'}
+    <p style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin:16px 0 8px">Notes</p>
+    <textarea id="profile-note-input" rows="2" placeholder="Add a note..." style="margin-bottom:8px"></textarea>
+    <button class="btn btn-outline btn-sm" onclick="addStudentNote('${s.id}')">+ Add Note</button>
+    <div id="profile-notes-list" style="margin-top:10px">${(s.notes||[]).slice().reverse().map(n=>`<div style="padding:7px 0;border-bottom:1px solid var(--border-light)"><p style="font-size:13px">${n.text}</p><p style="font-size:11px;color:var(--text-muted)">${n.ts}</p></div>`).join('')||'<p style="font-size:13px;color:var(--text-muted)">No notes yet</p>'}</div>`;
+  openModal('modal-profile');
+}
+function addStudentNote(sid){
+  const note=document.getElementById('profile-note-input').value.trim();if(!note)return;
+  const s=students.find(x=>x.id===sid);if(!s)return;
+  if(!s.notes)s.notes=[];
+  s.notes.push({text:note,ts:new Date().toLocaleString()});
+  save();document.getElementById('profile-note-input').value='';
+  document.getElementById('profile-notes-list').innerHTML=s.notes.slice().reverse().map(n=>`<div style="padding:7px 0;border-bottom:1px solid var(--border-light)"><p style="font-size:13px">${n.text}</p><p style="font-size:11px;color:var(--text-muted)">${n.ts}</p></div>`).join('');
+  toast('Note saved');
+}
+
+// ===================== ATTENDANCE =====================
+function renderAttendance(){
+  const cid=currentClass.attendance;if(!cid)return;
+  const date=document.getElementById('att-date').value;
+  const cls=students.filter(s=>s.classId===cid);
+  const dayAtt=attendance[date]||{};
+  const grid=document.getElementById('att-grid');
+  grid.innerHTML=cls.map(s=>{
+    const status=dayAtt[s.id]||'';
+    return`<div class="att-card" id="attcard-${s.id}">
+      <div style="display:flex;align-items:center;gap:8px">${mkAvatar(s.preferred,28)}<div><div style="font-size:13px;font-weight:700">${s.preferred}</div><div style="font-size:11px;color:var(--text-muted)">${s.name}</div></div></div>
+      <div class="att-buttons">
+        ${['P','L','A','E'].map(k=>`<button class="att-btn ${status===k?'sel-'+k:''}" onclick="markAtt('${s.id}','${k}','${date}')">${k==='P'?'✅':k==='L'?'🕐':k==='A'?'❌':'🏥'} ${k==='P'?'Pres':k==='L'?'Late':k==='A'?'Abs':'Exc'}</button>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  updateAttCounts(date,cid);
+}
+function markAtt(sid,status,date){
+  if(!attendance[date])attendance[date]={};
+  attendance[date][sid]=status;save();
+  const card=document.getElementById('attcard-'+sid);
+  if(card){card.querySelectorAll('.att-btn').forEach((b,i)=>{b.className='att-btn';const k=['P','L','A','E'][i];if(k===status)b.classList.add('sel-'+k);});}
+  updateAttCounts(date,currentClass.attendance);
+}
+function markAll(status){
+  const date=document.getElementById('att-date').value;
+  const cid=currentClass.attendance;if(!cid)return;
+  if(!attendance[date])attendance[date]={};
+  students.filter(s=>s.classId===cid).forEach(s=>attendance[date][s.id]=status);
+  save();renderAttendance();toast(`Marked all ${status==='P'?'Present':status}`);
+}
+function clearAllAtt(){
+  const date=document.getElementById('att-date').value;
+  const cid=currentClass.attendance;if(!cid)return;
+  if(attendance[date])students.filter(s=>s.classId===cid).forEach(s=>delete attendance[date][s.id]);
+  save();renderAttendance();
+}
+function updateAttCounts(date,cid){
+  const dayAtt=attendance[date]||{};
+  const cls=students.filter(s=>s.classId===cid);
+  ['P','L','A','E'].forEach(k=>document.getElementById('att-count-'+k).textContent=cls.filter(s=>dayAtt[s.id]===k).length);
+  document.getElementById('att-count-U').textContent=cls.filter(s=>!dayAtt[s.id]).length;
+}
+
+// ===================== GRADES =====================
+let gradeTab='HW';
+const gradeCols={HW:['HW1','HW2','HW3','HW4'],Part:['Part1','Part2','Part3'],Test:['Test1','Test2','Midterm','Final'],Speaking:['Sp1','Sp2','Sp3']};
+function switchGradeTab(tab,el){gradeTab=tab;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderGrades();}
+function renderGrades(){
+  const cid=currentClass.grades;if(!cid)return;
+  const cls=students.filter(s=>s.classId===cid);
+  const cols=gradeCols[gradeTab];
+  if(!grades[cid])grades[cid]={};
+  document.getElementById('grade-header-row').innerHTML='<th>Student</th>'+cols.map(c=>`<th style="text-align:center">${c}</th>`).join('')+'<th style="text-align:center">Avg</th>';
+  document.getElementById('grade-table-body').innerHTML=cls.map(s=>{
+    if(!grades[cid][s.id])grades[cid][s.id]={};
+    const cells=cols.map(c=>{const v=grades[cid][s.id][gradeTab+'_'+c]||'';return`<td class="grade-cell"><input class="grade-input" type="number" min="0" max="100" value="${v}" onchange="saveGrade('${cid}','${s.id}','${gradeTab}_${c}',this.value)" placeholder="—"></td>`;});
+    const vals=cols.map(c=>parseFloat(grades[cid][s.id][gradeTab+'_'+c])).filter(n=>!isNaN(n));
+    const avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
+    return`<tr><td><div style="display:flex;align-items:center;gap:8px">${mkAvatar(s.preferred,26)}<span style="font-size:13px;font-weight:600">${s.preferred}</span></div></td>${cells.join('')}<td class="grade-cell"><strong style="color:${avg===null?'var(--text-muted)':(avg>=80?'#2E7D32':avg>=60?'#E65100':'#C0392B')}">${avg!==null?gradeToLetter(avg)+' ('+avg+')':'—'}</strong></td></tr>`;
+  }).join('');
+}
+function saveGrade(cid,sid,key,val){if(!grades[cid])grades[cid]={};if(!grades[cid][sid])grades[cid][sid]={};grades[cid][sid][key]=val;save();}
+
+// ===================== HOMEWORK =====================
+function renderAssignments(){
+  const cid=currentClass.homework;if(!cid)return;
+  const asgns=assignments.filter(a=>a.classId===cid);
+  const container=document.getElementById('assignment-list');
+  if(!asgns.length){container.innerHTML='<div class="empty-state"><div class="empty-icon">📝</div><p>No assignments yet</p></div>';return;}
+  const cls=students.filter(s=>s.classId===cid);
+  container.innerHTML=asgns.map(a=>{
+    const total=cls.length;
+    const submitted=cls.filter(s=>a.submissions[s.id]==='Submitted').length;
+    const pct=total>0?Math.round(submitted/total*100):0;
+    return`<div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div><h3 style="font-size:15px;font-weight:800">${a.title}</h3>${a.desc?`<p style="font-size:13px;color:var(--text-muted);margin-top:3px">${a.desc}</p>`:''}<p style="font-size:12px;color:var(--text-muted);margin-top:4px">Due: ${a.due}</p></div>
+        <button class="btn btn-danger btn-sm" onclick="deleteAssignment('${a.id}')">Delete</button>
+      </div>
+      <div style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:12px;color:var(--text-muted)">Submissions: ${submitted}/${total}</span><span style="font-size:12px;font-weight:700;color:${pct>=70?'#2E7D32':'#C0392B'}">${pct}%</span></div>
+        <div class="progress-bar"><div class="progress-fill ${pct>=70?'progress-green':'progress-red'}" style="width:${pct}%"></div></div>
+      </div>
+      <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px">
+        ${cls.map(s=>`<div style="display:flex;align-items:center;gap:8px;padding:6px;border:1px solid var(--border-light);border-radius:8px">${mkAvatar(s.preferred,24)}<span style="font-size:12px;flex:1;font-weight:600">${s.preferred}</span><select style="width:auto;padding:3px 6px;font-size:11px" onchange="saveSubmission('${a.id}','${s.id}',this.value)"><option value="" ${!a.submissions[s.id]?'selected':''}>—</option><option value="Submitted" ${a.submissions[s.id]==='Submitted'?'selected':''}>✅</option><option value="Missing" ${a.submissions[s.id]==='Missing'?'selected':''}>❌</option><option value="Late" ${a.submissions[s.id]==='Late'?'selected':''}>🕐</option></select></div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+function saveSubmission(aid,sid,val){const a=assignments.find(x=>x.id===aid);if(!a)return;a.submissions[sid]=val;save();}
+function openAddAssignment(cid){
+  document.getElementById('a-title').value='';document.getElementById('a-class').value=cid||currentClass.homework||'1';
+  document.getElementById('a-due').value=todayStr();document.getElementById('a-desc').value='';
+  openModal('modal-assignment');
+}
+function saveAssignment(){
+  const title=document.getElementById('a-title').value.trim();if(!title){toast('Please enter a title');return;}
+  assignments.push({id:'a'+Date.now(),title,classId:document.getElementById('a-class').value,due:document.getElementById('a-due').value,desc:document.getElementById('a-desc').value.trim(),submissions:{}});
+  save();closeModal('modal-assignment');renderAssignments();toast('Assignment added ✅');
+}
+function deleteAssignment(aid){if(!confirm('Delete?'))return;assignments=assignments.filter(a=>a.id!==aid);save();renderAssignments();toast('Deleted');}
+
+// ===================== BEHAVIOR =====================
+let behaviorMode=null;
+function logBehaviorMode(label){
+  const neg=['Disruptive','Not Participating','Late Homework'];
+  behaviorMode={label,type:neg.includes(label)?'negative':'positive'};
+  document.getElementById('selected-behavior-mode').style.display='block';
+  document.getElementById('beh-mode-label').textContent=label;
+}
+function cancelBehaviorMode(){behaviorMode=null;document.getElementById('selected-behavior-mode').style.display='none';}
+function renderBehavior(){
+  const cid=currentClass.behavior;if(!cid)return;
+  const cls=students.filter(s=>s.classId===cid);
+  const grid=document.getElementById('behavior-grid');
+  grid.innerHTML=cls.map(s=>{
+    const beh=getStudentBehSummary(s.id);
+    return`<div class="att-card" onclick="logBehaviorForStudent('${s.id}')" style="cursor:${behaviorMode?'pointer':'default'}">
+      <div style="display:flex;align-items:center;gap:8px">${mkAvatar(s.preferred,28)}<div style="font-size:13px;font-weight:700">${s.preferred}</div></div>
+      <div style="display:flex;gap:8px;font-size:12px"><span style="color:#2E7D32">🌟 ${beh.pos}</span><span style="color:#C0392B">⚠️ ${beh.neg}</span></div>
+      ${beh.recent.length?`<div style="font-size:11px;color:var(--text-muted)">${beh.recent.slice(-1)[0].label}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function logBehaviorForStudent(sid){
+  if(!behaviorMode)return;
+  behaviors.push({id:'b'+Date.now(),studentId:sid,label:behaviorMode.label,type:behaviorMode.type,date:todayStr(),ts:new Date().toLocaleString()});
+  save();const s=students.find(x=>x.id===sid);toast(`Logged "${behaviorMode.label}" for ${s?.preferred||'student'}`);renderBehavior();
+}
+
+// ===================== LESSONS =====================
+function renderLessons(){
+  const cid=currentClass.lessons;if(!cid)return;
+  const dateFilter=document.getElementById('lesson-date-filter').value;
+  let filtered=lessons.filter(l=>l.classId===cid);
+  if(dateFilter)filtered=filtered.filter(l=>l.date===dateFilter);
+  filtered=filtered.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const container=document.getElementById('lessons-list');
+  const c=CLASSES[cid];
+  container.innerHTML=filtered.length?filtered.map(l=>`<div class="lesson-card" style="border-left-color:${c.color}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+      <div><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">${l.date}</div><h3 style="font-size:15px;font-weight:800">${l.objective||'Lesson'}</h3></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="continueLesson('${l.id}')">▶ Continue</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteLesson('${l.id}')">Del</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;font-size:13px">
+      ${l.materials?`<div><p style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:2px">Materials</p><p>${l.materials}</p></div>`:''}
+      ${l.worked?`<div><p style="font-size:10px;color:#2E7D32;font-weight:700;text-transform:uppercase;margin-bottom:2px">✅ Worked</p><p>${l.worked}</p></div>`:''}
+      ${l.didnt?`<div><p style="font-size:10px;color:#C0392B;font-weight:700;text-transform:uppercase;margin-bottom:2px">⚠️ Didn't Work</p><p>${l.didnt}</p></div>`:''}
+      ${l.struggles?`<div><p style="font-size:10px;color:#E65100;font-weight:700;text-transform:uppercase;margin-bottom:2px">Struggles</p><p>${l.struggles}</p></div>`:''}
+      ${l.stopped?`<div><p style="font-size:10px;color:var(--pink-text);font-weight:700;text-transform:uppercase;margin-bottom:2px">📌 Continue From</p><p style="font-weight:700">${l.stopped}</p></div>`:''}
+    </div>
+  </div>`).join(''):'<div class="empty-state"><div class="empty-icon">📖</div><p>No lessons yet. Add one!</p></div>';
+}
+function openAddLesson(cid){
+  ['l-objective','l-materials','l-worked','l-didnt','l-struggles','l-stopped'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('l-class').value=cid||currentClass.lessons||'1';
+  document.getElementById('l-date').value=todayStr();
+  openModal('modal-lesson');
+}
+function saveLesson(){
+  lessons.push({id:'l'+Date.now(),classId:document.getElementById('l-class').value,date:document.getElementById('l-date').value,objective:document.getElementById('l-objective').value.trim(),materials:document.getElementById('l-materials').value.trim(),worked:document.getElementById('l-worked').value.trim(),didnt:document.getElementById('l-didnt').value.trim(),struggles:document.getElementById('l-struggles').value.trim(),stopped:document.getElementById('l-stopped').value.trim()});
+  save();closeModal('modal-lesson');renderLessons();toast('Lesson saved ✅');
+}
+function continueLesson(lid){
+  const l=lessons.find(x=>x.id===lid);if(!l)return;
+  openModal('modal-lesson');
+  document.getElementById('l-class').value=l.classId;document.getElementById('l-date').value=todayStr();
+  document.getElementById('l-objective').value='[Continuing] '+(l.objective||'');
+  document.getElementById('l-materials').value=l.materials||'';
+  document.getElementById('l-worked').value='';document.getElementById('l-didnt').value='';document.getElementById('l-struggles').value='';
+  document.getElementById('l-stopped').value=l.stopped?'Continuing from: '+l.stopped:'';
+  toast('Continuing from: '+(l.stopped||'last session'));
+}
+function deleteLesson(lid){if(!confirm('Delete?'))return;lessons=lessons.filter(l=>l.id!==lid);save();renderLessons();toast('Deleted');}
+
+// ===================== RESOURCES =====================
+function renderResources(){
+  const cid=currentClass.resources;
+  const filtered=cid?resources.filter(r=>r.classId===cid||r.classId===''):resources;
+  const icons={PDF:'📄',Worksheet:'📋','Google Drive':'📁',Link:'🔗'};
+  const container=document.getElementById('resources-list');
+  container.innerHTML=filtered.map(r=>`<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:8px">
+    <div style="font-size:24px">${icons[r.type]||'📎'}</div>
+    <p style="font-size:14px;font-weight:700">${r.title}</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge" style="background:var(--pink-pale);color:var(--pink-text)">${r.type}</span>${r.classId?classBadge(r.classId):'<span class="badge" style="background:#F5F5F5;color:#666">All Classes</span>'}</div>
+    ${r.url?`<a href="${r.url}" target="_blank" style="font-size:12px;color:var(--pink-text);text-decoration:none">Open →</a>`:''}
+    <button class="btn btn-danger btn-sm" style="align-self:flex-start" onclick="deleteResource('${r.id}')">Remove</button>
+  </div>`).join('');
+  if(!filtered.length)container.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📁</div><p>No resources yet</p></div>';
+}
+function openAddResource(cid){
+  document.getElementById('r-title').value='';document.getElementById('r-url').value='';
+  document.getElementById('r-type').value='PDF';document.getElementById('r-class').value=cid||currentClass.resources||'';
+  openModal('modal-resource');
+}
+function saveResource(){
+  const title=document.getElementById('r-title').value.trim();if(!title){toast('Please enter a title');return;}
+  resources.push({id:'r'+Date.now(),title,type:document.getElementById('r-type').value,url:document.getElementById('r-url').value.trim(),classId:document.getElementById('r-class').value});
+  save();closeModal('modal-resource');renderResources();toast('Resource added ✅');
+}
+function deleteResource(rid){if(!confirm('Remove?'))return;resources=resources.filter(r=>r.id!==rid);save();renderResources();}
+
+// ===================== REPORTS =====================
+function generateReport(type){
+  toast('Generating report... 📄');
+  setTimeout(()=>{
+    const rows=students.map(s=>({name:s.name,cls:CLASSES[s.classId].name,att:(getStudentAttPct(s.id)||0)+'%',g:getStudentGradeAvg(s.id)!==null?gradeToLetter(getStudentGradeAvg(s.id))+'('+getStudentGradeAvg(s.id)+')':'—',miss:getStudentMissing(s.id)}));
+    const w=window.open('','_blank');
+    w.document.write(`<html><head><title>EFL Report</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#333}h1{color:#C45A72}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#FFE4ED;padding:10px;text-align:left;font-size:12px}td{padding:9px 10px;border-bottom:1px solid #f0d0dc;font-size:13px}tr:hover{background:#fff5f8}</style></head><body><h1>Ms. Nikki's EFL — ${type==='attendance'?'Attendance':type==='grades'?'Grade':'Student'} Report</h1><p style="font-size:13px;color:#888">${new Date().toLocaleString()}</p><table><thead><tr><th>Student</th><th>Class</th><th>Attendance</th><th>Grade</th><th>Missing HW</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.name}</td><td>${r.cls}</td><td>${r.att}</td><td>${r.g}</td><td>${r.miss}</td></tr>`).join('')}</tbody></table><script>setTimeout(()=>window.print(),300)<\/script></body></html>`);
+    w.document.close();
+  },500);
+}
+function exportReport(){
+  const format=document.getElementById('report-format').value;
+  const cid=document.getElementById('report-class').value;
+  const filtered=cid?students.filter(s=>s.classId===cid):students;
+  if(format==='csv'){
+    let csv='Name,Class,Attendance %,Grade Avg,Missing HW\n';
+    filtered.forEach(s=>{csv+=`"${s.name}","${CLASSES[s.classId].name}","${getStudentAttPct(s.id)||0}%","${getStudentGradeAvg(s.id)!==null?gradeToLetter(getStudentGradeAvg(s.id)):'—'}","${getStudentMissing(s.id)}"\n`;});
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='efl_report.csv';a.click();
+    toast('CSV exported ✅');
+  } else generateReport('student');
+}
+
+// ===================== ANALYTICS =====================
+function renderAnalytics(){
+  const total=students.length;
+  const allAtt=students.map(s=>getStudentAttPct(s.id)||0);
+  const avgAtt=allAtt.length?Math.round(allAtt.reduce((a,b)=>a+b,0)/allAtt.length):0;
+  const allG=students.map(s=>getStudentGradeAvg(s.id)).filter(g=>g!==null);
+  const avgG=allG.length?Math.round(allG.reduce((a,b)=>a+b,0)/allG.length):0;
+  const totalMiss=students.reduce((sum,s)=>sum+getStudentMissing(s.id),0);
+  document.getElementById('analytics-stats').innerHTML=[
+    {l:'Total Students',v:total,s:'All classes'},
+    {l:'Avg Attendance',v:avgAtt+'%',s:'All classes'},
+    {l:'Avg Grade',v:allG.length?gradeToLetter(avgG):'—',s:avgG>0?avgG+' pts':'No grades yet'},
+    {l:'Missing HW',v:totalMiss,s:'Across all classes'},
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.l}</div><div class="stat-value">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+
+  // Analytics class grid — clicking goes to grade view for that class
+  const acg=document.getElementById('analytics-class-grid');
+  acg.innerHTML=Object.entries(CLASSES).map(([cid,c])=>{
+    const cls=students.filter(s=>s.classId===cid);
+    const g2=cls.map(s=>getStudentGradeAvg(s.id)).filter(x=>x!==null);
+    const avg2=g2.length?Math.round(g2.reduce((a,b)=>a+b,0)/g2.length):null;
+    const att2=cls.map(s=>getStudentAttPct(s.id)||0);
+    const avgAtt2=att2.length?Math.round(att2.reduce((a,b)=>a+b,0)/att2.length):0;
+    const miss=cls.reduce((sum,s)=>sum+getStudentMissing(s.id),0);
+    return`<div class="class-card ${c.key}" onclick="showSection('grades');setTimeout(()=>openClassSection_grades('${cid}'),50)">
+      <span class="cc-icon">${c.emoji}</span>
+      <div class="cc-label">Performance</div>
+      <div class="cc-name">${c.name}</div>
+      <div class="cc-count">${cls.length} students</div>
+      <div class="cc-stats">
+        <span class="cc-stat">Avg: ${avg2!==null?gradeToLetter(avg2)+' ('+avg2+')':'—'}</span>
+        <span class="cc-stat">${avgAtt2}% att</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Most absent
+  document.getElementById('most-absent-list').innerHTML=students.map(s=>({s,pct:getStudentAttPct(s.id)||100})).sort((a,b)=>a.pct-b.pct).slice(0,6).map(({s,pct})=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-light)">${mkAvatar(s.preferred,28)}<div style="flex:1"><p style="font-size:13px;font-weight:600">${s.preferred}</p>${classBadge(s.classId)}</div><span style="font-size:14px;font-weight:800;color:${pct>=80?'#2E7D32':pct>=60?'#E65100':'#C0392B'}">${pct}%</span></div>`).join('');
+
+  // Behavior analytics
+  const bc={};behaviors.filter(b=>b.type==='negative').forEach(b=>{bc[b.label]=(bc[b.label]||0)+1;});
+  document.getElementById('behavior-analytics').innerHTML=Object.entries(bc).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([l,n])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-light)"><span class="behavior-chip negative" style="cursor:default">${l}</span><span style="margin-left:auto;font-size:14px;font-weight:800">${n}</span></div>`).join('')||'<p style="font-size:13px;color:var(--text-muted);padding:16px 0">No behavior logs yet</p>';
+}
+
+// ===================== CHECK-IN =====================
+function renderCheckin(){
+  const cid=currentClass.checkin;if(!cid)return;
+  const today=todayStr();
+  const todayAtt=attendance[today]||{};
+  const cls=students.filter(s=>s.classId===cid);
+  document.getElementById('checkin-status-list').innerHTML=cls.map(s=>{
+    const status=todayAtt[s.id];
+    return`<div class="att-card" style="cursor:default">${mkAvatar(s.preferred,28)}<span style="font-size:13px;font-weight:700">${s.preferred}</span><span class="badge ${status==='P'?'badge-present':status==='L'?'badge-late':status==='A'?'badge-absent':status==='E'?'badge-excused':''}" style="align-self:flex-start">${status==='P'?'Present':status==='L'?'Late':status==='A'?'Absent':status==='E'?'Excused':'Not checked in'}</span></div>`;
+  }).join('');
+}
+function doCheckin(){
+  const pin=document.getElementById('checkin-pin').value.trim();
+  const cid=currentClass.checkin;
+  const resultEl=document.getElementById('checkin-result');
+  if(!pin){toast('Please enter your PIN');return;}
+  const student=students.find(s=>s.pin===pin&&s.classId===cid);
+  if(!student){resultEl.style.cssText='display:block;background:#FFEBE8;color:#C0392B';resultEl.textContent='❌ PIN not found. Try again.';return;}
+  const today=todayStr();
+  if(!attendance[today])attendance[today]={};
+  if(attendance[today][student.id]==='P'){resultEl.style.cssText='display:block;background:#FFF8E1;color:#E65100';resultEl.textContent=`⚠️ ${student.preferred}, you're already checked in!`;return;}
+  attendance[today][student.id]='P';save();
+  resultEl.style.cssText='display:block;background:#E8F5E9;color:#2E7D32';
+  resultEl.textContent=`✅ ${student.preferred}, you are marked present!`;
+  document.getElementById('checkin-pin').value='';
+  renderCheckin();setTimeout(()=>resultEl.style.display='none',3000);
+}
+
+// ===================== SETTINGS =====================
+function renderClassSettings(){
+  document.getElementById('class-settings-list').innerHTML=Object.entries(CLASSES).map(([id,c])=>{
+    const count=students.filter(s=>s.classId===id).length;
+    return`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light)">
+      <div style="width:20px;height:20px;border-radius:50%;background:${c.color}"></div>
+      <div style="flex:1"><p style="font-size:13px;font-weight:700">${c.name}</p><p style="font-size:11px;color:var(--text-muted)">${count} students</p></div>
+      <button class="btn btn-outline btn-sm" onclick="showSection('students');setTimeout(()=>openClassSection_students('${id}'),50)">View</button>
+    </div>`;
+  }).join('');
+  renderAccountsList();
+}
+function exportAllData(){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({students,attendance,grades,assignments,behaviors,lessons,resources},null,2)],{type:'application/json'}));a.download='efl_backup_'+todayStr()+'.json';a.click();toast('Backup exported ✅');
+}
+function resetData(){
+  const accounts=localStorage.getItem('efl_accounts');
+  localStorage.clear();
+  if(accounts)localStorage.setItem('efl_accounts',accounts);
+  location.reload();
+}
+
+function logout(){
+  sessionStorage.removeItem('efl_logged');
+  currentUser=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-pass').value='';
+  renderQuickBtns();
+}
+
+// Auto-login
+(function(){
+  renderQuickBtns();
+  const stored = sessionStorage.getItem('efl_logged');
+  if(stored){
+    try{
+      const sess = JSON.parse(stored);
+      const accounts = getAccounts();
+      const user = accounts.find(a=>a.id===sess.id&&a.email===sess.email);
+      if(user){
+        currentUser=user;
+        document.getElementById('login-screen').style.display='none';
+        document.getElementById('app').style.display='flex';
+        initApp();
+      }
+    }catch{}
+  }
+})();
+</script>
+</body>
+</html>
