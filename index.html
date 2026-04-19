@@ -3,148 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ms. Nikki's EFL All-In-One</title>
-    <meta name="theme-color" content="#E8829A">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Ms. Nikki's EFL Portal</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <style>
-        :root {
-            --pink:#FFB6C8;--pink-light:#FFE4ED;--pink-pale:#FFF0F5;--pink-deep:#E8829A;--pink-text:#C45A72;
-            --white:#FFFFFF;--bg:#FFF5F8;--surface:#FFFFFF;
-            --text:#1A1A2E;--text-muted:#7A7A9A;--text-light:#B0B0C8;
-            --border:#F0D0DC;--border-light:#FAE8EF;
-            --shadow:0 2px 12px rgba(220,80,120,0.08);--shadow-md:0 4px 24px rgba(220,80,120,0.14);
-            --radius:14px;--radius-sm:8px;--radius-lg:20px;
+    <script>
+        // 2. INITIALIZE IMMEDIATELY
+        const _URL = "https://xajfmpgrtdlfdhubqzba.supabase.co";
+        const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhamZtcGdydGRsZmRodWJxemJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NTgwNTUsImV4cCI6MjA5MjEzNDA1NX0.QuI6GVNvu4Zy5jAn2veHYuyV0q07qKBdYenswnTp-PU";
+        
+        // Wait for the library to load then create client
+        let supabaseClient;
+        window.addEventListener('DOMContentLoaded', () => {
+            supabaseClient = supabase.createClient(_URL, _KEY);
+            checkUser();
+        });
+
+        async function signUp() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+
+            if (error) {
+                alert("Error: " + error.message);
+            } else {
+                alert("Success! Check your email for a confirmation link. You must click that link before you can login.");
+            }
         }
-        *{box-sizing:border-box;margin:0;padding:0;}
-        body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-        
-        /* LOGIN SCREEN STYLES */
-        .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFF0F5 0%,#FFE4ED 50%,#F8E4FF 100%);}
-        .login-card{background:white;border-radius:var(--radius-lg);padding:40px;width:380px;box-shadow:0 8px 48px rgba(220,80,120,0.15);text-align:center;}
-        .login-logo .logo-big{font-size:48px;margin-bottom:8px;}
-        .login-logo h1{font-size:20px;font-weight:800;color:var(--pink-text);margin-bottom:20px;}
-        .form-group{margin-bottom:14px; text-align: left;}
-        label{font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:5px;display:block;}
-        input{width:100%;padding:11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);outline:none;font-family:inherit;}
-        input:focus{border-color:var(--pink-deep);}
-        
-        .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s;width:100%;margin-top:10px;}
-        .btn-primary{background:var(--pink-deep);color:white;}
-        .btn-primary:hover{background:var(--pink-text);}
-        .btn-outline{background:white;color:var(--pink-text);border:1.5px solid var(--pink);margin-top:8px;}
-        
-        /* APP LAYOUT */
-        .app{display:none;min-height:100vh;}
-        .sidebar{width:240px;background:var(--white);border-right:1px solid var(--border-light);position:fixed;height:100vh;padding:20px;}
-        .main{margin-left:240px;flex:1;padding:40px;}
-        .nav-item{padding:12px;cursor:pointer;border-radius:8px;margin-bottom:5px;transition:0.2s;color:var(--text-muted);font-weight:600;}
-        .nav-item:hover, .nav-item.active{background:var(--pink-pale);color:var(--pink-text);}
+
+        async function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                alert("Login Failed: " + error.message);
+            } else {
+                enterApp();
+            }
+        }
+
+        async function checkUser() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) enterApp();
+        }
+
+        function enterApp() {
+            document.getElementById('login-zone').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+        }
+
+        function logout() {
+            supabaseClient.auth.signOut();
+            location.reload();
+        }
+    </script>
+
+    <style>
+        :root { --pink: #E8829A; --bg: #FFF5F8; }
+        body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-main { background: var(--pink); color: white; }
+        .btn-sub { background: #f0f0f0; color: #666; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
 
-<div id="login-screen" class="login-screen">
-    <div class="login-card">
-        <div class="login-logo">
-            <div class="logo-big">🍎</div>
-            <h1>Ms. Nikki's EFL Portal</h1>
-            <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Teacher Access Only</p>
-        </div>
-        
-        <div id="auth-error" style="display:none;background:#FFEBE8;color:#C0392B;padding:10px;border-radius:8px;font-size:12px;margin-bottom:15px;"></div>
-        
-        <div class="form-group">
-            <label>Teacher Email</label>
-            <input type="email" id="teacher-email" placeholder="name@school.com">
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="teacher-pass" placeholder="••••••••">
-        </div>
-        
-        <button class="btn btn-primary" onclick="handleLogin()">Teacher Sign In →</button>
-        <button class="btn btn-outline" onclick="handleSignUp()">Register New Teacher</button>
-        
-        <p style="margin-top:20px; font-size:11px; color:var(--text-light);">Secure database powered by Supabase</p>
+<div id="login-zone">
+    <div class="card">
+        <h2 style="color: #E8829A;">🍎 Teacher Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button class="btn btn-main" onclick="signIn()">Login →</button>
+        <button class="btn btn-sub" onclick="signUp()">Register New Teacher</button>
     </div>
 </div>
 
-<div id="app" class="app">
-    <aside class="sidebar">
-        <h2 style="color:var(--pink-text); font-size:18px; margin-bottom:30px;">🍎 Ms. Nikki</h2>
-        <div class="nav-item active">Dashboard</div>
-        <div class="nav-item">Students</div>
-        <div class="nav-item">Attendance</div>
-        <div class="nav-item">Grades</div>
-        <div class="nav-item" style="margin-top:auto; color: #C0392B;" onclick="handleLogout()">🚪 Logout</div>
-    </aside>
-
-    <main class="main">
-        <h2>Good morning, Teacher! 👋</h2>
-        <p style="color:var(--text-muted);">Welcome to your EFL Classroom Management dashboard.</p>
-        
-        <div style="margin-top:30px; padding:40px; border:2px dashed var(--pink); border-radius:20px; text-align:center; color:var(--pink-text);">
-            Your student data will appear here.
-        </div>
-    </main>
+<div id="app-content" style="display:none;">
+    <div class="card">
+        <h2>Logged In!</h2>
+        <p>Your dashboard is ready.</p>
+        <button class="btn btn-sub" onclick="logout()">Sign Out</button>
+    </div>
 </div>
-
-<script>
-    // 1. DATABASE CONNECTION
-    const _URL = "https://xajfmpgrtdlfdhubqzba.supabase.co";
-    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhamZtcGdydGRsZmRodWJxemJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NTgwNTUsImV4cCI6MjA5MjEzNDA1NX0.QuI6GVNvu4Zy5jAn2veHYuyV0q07qKBdYenswnTp-PU";
-    const supabase = supabase.createClient(_URL, _KEY);
-
-    // 2. LOGIN FUNCTION
-    async function handleLogin() {
-        const email = document.getElementById('teacher-email').value;
-        const password = document.getElementById('teacher-pass').value;
-        const errorDiv = document.getElementById('auth-error');
-
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-        if (error) {
-            errorDiv.style.display = 'block';
-            errorDiv.innerText = error.message;
-        } else {
-            showApp();
-        }
-    }
-
-    // 3. REGISTRATION FUNCTION
-    async function handleSignUp() {
-        const email = document.getElementById('teacher-email').value;
-        const password = document.getElementById('teacher-pass').value;
-
-        const { data, error } = await supabase.auth.signUp({ email, password });
-
-        if (error) {
-            alert(error.message);
-        } else {
-            alert("Success! Check your email (" + email + ") for a confirmation link to activate your teacher account.");
-        }
-    }
-
-    // 4. UI CONTROL
-    function showApp() {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app').style.display = 'flex';
-    }
-
-    function handleLogout() {
-        supabase.auth.signOut();
-        window.location.reload();
-    }
-
-    // Check if teacher is already logged in
-    window.onload = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) showApp();
-    };
-</script>
 
 </body>
 </html>
