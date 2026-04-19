@@ -5,74 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ms. Nikki's EFL Portal</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
-    <script>
-        // 2. INITIALIZE IMMEDIATELY
-        const _URL = "https://xajfmpgrtdlfdhubqzba.supabase.co";
-        const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhamZtcGdydGRsZmRodWJxemJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NTgwNTUsImV4cCI6MjA5MjEzNDA1NX0.QuI6GVNvu4Zy5jAn2veHYuyV0q07qKBdYenswnTp-PU";
-        
-        // Wait for the library to load then create client
-        let supabaseClient;
-        window.addEventListener('DOMContentLoaded', () => {
-            supabaseClient = supabase.createClient(_URL, _KEY);
-            checkUser();
-        });
-
-        async function signUp() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if (!email || !password) {
-                alert("Please enter both email and password.");
-                return;
-            }
-
-            const { data, error } = await supabaseClient.auth.signUp({ email, password });
-
-            if (error) {
-                alert("Error: " + error.message);
-            } else {
-                alert("Success! Check your email for a confirmation link. You must click that link before you can login.");
-            }
-        }
-
-        async function signIn() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                alert("Login Failed: " + error.message);
-            } else {
-                enterApp();
-            }
-        }
-
-        async function checkUser() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) enterApp();
-        }
-
-        function enterApp() {
-            document.getElementById('login-zone').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-        }
-
-        function logout() {
-            supabaseClient.auth.signOut();
-            location.reload();
-        }
-    </script>
-
     <style>
         :root { --pink: #E8829A; --bg: #FFF5F8; }
         body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; transition: opacity 0.2s; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-main { background: var(--pink); color: white; }
         .btn-sub { background: #f0f0f0; color: #666; border: 1px solid #ddd; }
+        #status-msg { font-size: 12px; margin-top: 10px; color: #666; }
     </style>
 </head>
 <body>
@@ -80,20 +24,89 @@
 <div id="login-zone">
     <div class="card">
         <h2 style="color: #E8829A;">🍎 Teacher Login</h2>
+        <p id="status-msg">Initializing system...</p>
         <input type="email" id="email" placeholder="Email">
         <input type="password" id="password" placeholder="Password">
-        <button class="btn btn-main" onclick="signIn()">Login →</button>
-        <button class="btn btn-sub" onclick="signUp()">Register New Teacher</button>
+        <button id="login-btn" class="btn btn-main" onclick="signIn()">Login →</button>
+        <button id="signup-btn" class="btn btn-sub" onclick="signUp()">Register New Teacher</button>
     </div>
 </div>
 
 <div id="app-content" style="display:none;">
     <div class="card">
         <h2>Logged In!</h2>
-        <p>Your dashboard is ready.</p>
+        <p>Ms. Nikki's Dashboard is Active.</p>
         <button class="btn btn-sub" onclick="logout()">Sign Out</button>
     </div>
 </div>
+
+<script>
+    const _URL = "https://xajfmpgrtdlfdhubqzba.supabase.co";
+    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhamZtcGdydGRsZmRodWJxemJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NTgwNTUsImV4cCI6MjA5MjEzNDA1NX0.QuI6GVNvu4Zy5jAn2veHYuyV0q07qKBdYenswnTp-PU";
+    
+    let supabaseClient;
+
+    // Check if the library loaded
+    try {
+        supabaseClient = supabase.createClient(_URL, _KEY);
+        document.getElementById('status-msg').innerText = "System Ready ✅";
+        console.log("Supabase initialized successfully");
+    } catch (e) {
+        document.getElementById('status-msg').innerText = "System Error: Library failed to load.";
+        console.error("Supabase Init Error:", e);
+    }
+
+    async function signUp() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('signup-btn');
+        
+        if (!email || !password) return alert("Please fill in both fields.");
+        
+        btn.disabled = true;
+        btn.innerText = "Registering...";
+        
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+
+        if (error) {
+            alert("Error: " + error.message);
+            btn.disabled = false;
+            btn.innerText = "Register New Teacher";
+        } else {
+            alert("Success! Check your email for the confirmation link.");
+            btn.innerText = "Check Email";
+        }
+    }
+
+    async function signIn() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('login-btn');
+
+        btn.disabled = true;
+        btn.innerText = "Signing in...";
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            alert("Login Failed: " + error.message);
+            btn.disabled = false;
+            btn.innerText = "Login →";
+        } else {
+            enterApp();
+        }
+    }
+
+    function enterApp() {
+        document.getElementById('login-zone').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+    }
+
+    function logout() {
+        supabaseClient.auth.signOut();
+        location.reload();
+    }
+</script>
 
 </body>
 </html>
